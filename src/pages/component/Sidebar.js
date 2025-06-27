@@ -95,7 +95,10 @@ export default function Sidebar() {
     icon: MessageCircle,
     href: "/socialmedia",
     isDropdown: true,
-    items: [{ href: "/socialmedia", label: "Socialmedia" }],
+    items: [{ href: "/socialmedia", label: "Socialmedia" },
+      { href: "/socialmedia", label: "Socialmedia" },
+      { href: "/socialmedia", label: "Socialmedia" }
+    ],
   },
   {
     id: "Leads",

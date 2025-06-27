@@ -1,13 +1,7 @@
+//Working code 27/06
+
 import React, { useEffect, useState } from "react";
-import {
-  User,
-  Mail,
-  Phone,
-  LogOut,
-  Edit,
-  Save,
-  X,
-} from "lucide-react";
+import { User, Mail, Phone, Lock, LogOut, Edit, Save, X, Eye, EyeOff } from "lucide-react";
 import { performLogout } from "@/utills/logout";
 import { getUserRole } from "@/utills/auth";
 import api from "@/utills/api";
@@ -16,18 +10,21 @@ import usePermission from "./hooks/usePermission";
 import { useRouter } from "next/navigation";
 
 export default function Profile() {
-  const { is_view, is_add, is_update, is_delete } = usePermission("manage_staff");
+  const { is_view, is_add, is_update, is_delete } =
+    usePermission("manage_staff");
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const [userProfile, setUserProfile] = useState({
     username: "",
     email: "",
     mobile: "",
+    password: "",
   });
   const [editedProfile, setEditedProfile] = useState({ ...userProfile });
 
   const { token, user_type, id } = getUserRole();
+  // const canEdit = user_type === "admin"; // Only admin can edit
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -43,7 +40,12 @@ export default function Profile() {
 
         if (res.status === 200 && res.data?.data) {
           const { username, email, mobile } = res.data.data;
-          setUserProfile({ username, email, mobile });
+          setUserProfile({
+            username,
+            email,
+            mobile,
+            password: "********", // Keep masked
+          });
         } else {
           toast.error("Failed to load profile");
         }
@@ -57,7 +59,7 @@ export default function Profile() {
   }, []);
 
   const handleEdit = () => {
-    setEditedProfile({ ...userProfile });
+    setEditedProfile({ ...userProfile }); // sync form with current data
     setIsEditing(true);
   };
 
@@ -76,7 +78,12 @@ export default function Profile() {
         username: editedProfile.username,
         email: editedProfile.email,
         mobile: editedProfile.mobile,
+        password: editedProfile.password,
       };
+
+      if (editedProfile.password !== "********") {
+        payload.password = editedProfile.password;
+      }
 
       const res = await api.put(`/nodesetup/${endpoint}/${id}`, payload, {
         headers: { Authorization: `Bearer ${token}` },
@@ -126,6 +133,13 @@ export default function Profile() {
       value: isEditing ? editedProfile.mobile : userProfile.mobile,
       type: "tel",
     },
+    {
+      id: "password",
+      label: "Password",
+      icon: <Lock size={24} className='text-[#004b8f]' />,
+      value: isEditing ? editedProfile.password : userProfile.password,
+      type: "password",
+    },
   ];
 
   return (
@@ -141,7 +155,7 @@ export default function Profile() {
               {!isEditing ? (
                 <button
                   onClick={handleEdit}
-                  className='flex items-center justify-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full sm:w-auto'>
+                  className='flex items-center justify-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] transition-all duration-300 transform hover:scale-116 shadow-lg hover:shadow-xl w-full sm:w-auto'>
                   <Edit size={20} />
                   Edit Profile
                 </button>
@@ -149,13 +163,13 @@ export default function Profile() {
                 <>
                   <button
                     onClick={handleSave}
-                    className='flex items-center justify-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full sm:w-auto'>
+                    className='flex items-center justify-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] transition-all duration-300 transform hover:scale-116 shadow-lg hover:shadow-xl w-full sm:w-auto'>
                     <Save size={20} />
                     Save
                   </button>
                   <button
                     onClick={handleCancel}
-                    className='flex items-center justify-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl w-full sm:w-auto'>
+                    className='flex items-center justify-center gap-2 px-6 py-3 bg-gray-500 text-white rounded-xl hover:bg-gray-600 transition-all duration-300 transform hover:scale-116 shadow-lg hover:shadow-xl w-full sm:w-auto'>
                     <X size={20} />
                     Cancel
                   </button>
@@ -186,13 +200,13 @@ export default function Profile() {
         </div>
 
         {/* Profile Fields */}
-        <div className='grid grid-cols-3 gap-6 mb-8'>
+        <div className='grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8'>
           {profileFields.map((field) => (
             <div
               key={field.id}
               className='relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 border-[#004b8f]/20 hover:border-[#004b8f] transition-all duration-500 group'>
               <div className='absolute inset-0 bg-gradient-to-br from-[#004b8f]/5 via-blue-50/50 to-indigo-50/50 dark:from-[#004b8f]/10 dark:via-gray-700/50 dark:to-gray-800/50 opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
-              <div className='relative z-10 p-4'>
+              <div className='relative z-10 p-6'>
                 <div className='mb-4 relative'>
                   <div className='absolute inset-0 bg-[#004b8f]/20 blur-xl rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500'></div>
                   <div className='relative w-fit'>{field.icon}</div>
@@ -201,18 +215,36 @@ export default function Profile() {
                   {field.label}
                 </label>
                 {isEditing ? (
-                  <input
-                    type={field.type}
-                    value={field.value}
-                    onChange={(e) =>
-                      handleInputChange(field.id, e.target.value)
-                    }
-                    className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-[#004b8f] focus:outline-none text-gray-800 dark:text-white'
-                  />
+                  <div className='relative'>
+                    <input
+                      type={
+                        field.type === "password" && showPassword
+                          ? "text"
+                          : field.type
+                      }
+                      value={field.value}
+                      onChange={(e) =>
+                        handleInputChange(field.id, e.target.value)
+                      }
+                      className='w-full px-4 py-3 bg-gray-50 dark:bg-gray-700 border-2 border-gray-200 dark:border-gray-600 rounded-xl focus:border-[#004b8f] focus:outline-none text-gray-800 dark:text-white'
+                    />
+                    {field.type === "password" && (
+                      <button
+                        type='button'
+                        onClick={() => setShowPassword(!showPassword)}
+                        className='absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-[#004b8f]'>
+                        {showPassword ? (
+                          <EyeOff size={20} />
+                        ) : (
+                          <Eye size={20} />
+                        )}
+                      </button>
+                    )}
+                  </div>
                 ) : (
                   <div className='px-4 py-3 bg-gray-50 dark:bg-gray-700 rounded-xl'>
                     <span className='text-gray-800 dark:text-white font-medium'>
-                      {field.value}
+                      {field.type === "password" ? "••••••••" : field.value}
                     </span>
                   </div>
                 )}
@@ -222,11 +254,12 @@ export default function Profile() {
         </div>
 
         {/* Logout */}
+        {/* Logout (only show when not editing) */}
         {!isEditing && (
           <div className='flex justify-center sm:justify-end'>
             <button
               onClick={handleLogout}
-              className='gap-2 px-6 py-3 bg-[#004B8F] text-white rounded-xl hover:bg-[#003D73] transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold w-full sm:w-auto'>
+              className='gap-2 px-6 py-3 bg-[#004B8F] text-white rounded-xl hover:bg-[#003D73] transition-all duration-300 transform hover:scale-116 shadow-lg hover:shadow-xl font-semibold w-full sm:w-auto'>
               <LogOut size={20} className='inline-block mr-2' />
               Logout
             </button>

@@ -3,7 +3,7 @@ import axios from "axios";
 import { refreshAccessToken, logout } from "./auth";
 
 const isLocalhost = typeof window !== "undefined" && window.location.hostname === "localhost";
-export const API_URL = isLocalhost ? "http://192.168.0.106:3007" : "https://node.esirt.co.in";
+export const API_URL = isLocalhost ? "http://192.168.0.116:3007" : "https://node.esirt.co.in";
 
 const api = axios.create({
   baseURL: API_URL,

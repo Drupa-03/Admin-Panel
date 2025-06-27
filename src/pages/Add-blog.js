@@ -651,11 +651,11 @@ export default function AddBlog() {
               type: content.type,
               content:
                 content.type === "image"
-                  ? `http://192.168.0.105:3007/${content.content}`
+                  ? `http://192.168.0.116:3007/${content.content}`
                   : content.content,
               previewUrl:
                 content.type === "image"
-                  ? `http://192.168.0.105:3007/${content.content}`
+                  ? `http://192.168.0.116:3007/${content.content}`
                   : "",
               order: content.order,
             }))
@@ -710,7 +710,7 @@ export default function AddBlog() {
             order: i + 1,
             content:
               block.type === "image"
-                ? block.content.replace("http://192.168.0.105:3007/", "")
+                ? block.content.replace("http://192.168.0.106:3007/", "")
                 : block.content,
           })),
         };
@@ -870,7 +870,7 @@ export default function AddBlog() {
         toast.warn("Image uploaded, but no URL returned.");
         return;
       }
-      const previewUrl = `http://192.168.0.105:3007/${imageData.tempUrl.toLowerCase()}`;
+      const previewUrl = `http://192.168.0.116:3007/${imageData.tempUrl.toLowerCase()}`;
       console.log("Setting previewUrl:", previewUrl);
       const img = new globalThis.Image();
 

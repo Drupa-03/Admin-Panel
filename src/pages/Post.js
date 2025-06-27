@@ -1,82 +1,88 @@
 import React, { useState } from 'react';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 import { Image, Upload, Calendar, Alert, Instagram, Send } from 'lucide-react';
 import api from '@/utills/api';
 
 const VALID_PLATFORMS = ['linkedin', 'facebook', 'instagram'];
 
+// Validation Schema
+const validationSchema = Yup.object({
+  caption: Yup.string()
+    .min(1, 'Caption is required')
+    .max(2200, 'Caption must be less than 2200 characters')
+    .required('Caption is required'),
+  
+  platforms: Yup.array()
+    .when('postType', {
+      is: 'multi',
+      then: (schema) => schema
+        .min(1, 'Please select at least one platform')
+        .of(Yup.string().oneOf(VALID_PLATFORMS)),
+      otherwise: (schema) => schema
+    }),
+  
+  images: Yup.array()
+    .min(1, 'Please upload at least one image')
+    .required('Images are required'),
+  
+  schedule: Yup.date()
+    .nullable()
+    .min(new Date(), 'Schedule time must be in the future'),
+  
+  postType: Yup.string()
+    .oneOf(['multi', 'instagram'], 'Invalid post type')
+    .required('Post type is required')
+});
+
 const Post = () => {
-  const [caption, setCaption] = useState('');
-  const [platforms, setPlatforms] = useState([]);
-  const [images, setImages] = useState([]);
-  const [schedule, setSchedule] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
   const [previewUrls, setPreviewUrls] = useState([]);
-  const [postType, setPostType] = useState('multi'); // 'multi' or 'instagram'
 
-  const handleImageChange = (e) => {
+  // Initial form values
+  const initialValues = {
+    caption: '',
+    platforms: [],
+    images: [],
+    schedule: '',
+    postType: 'multi'
+  };
+
+  const handleImageChange = (e, setFieldValue) => {
     const files = Array.from(e.target.files);
-    setImages(files);
+    setFieldValue('images', files);
     
     // Create preview URLs
     const urls = files.map(file => URL.createObjectURL(file));
     setPreviewUrls(urls);
   };
 
-  const handlePlatformToggle = (platform) => {
-    setPlatforms(prev => 
-      prev.includes(platform) 
-        ? prev.filter(p => p !== platform) 
-        : [...prev, platform]
-    );
+  const handlePlatformToggle = (platform, values, setFieldValue) => {
+    const newPlatforms = values.platforms.includes(platform) 
+      ? values.platforms.filter(p => p !== platform) 
+      : [...values.platforms, platform];
+    
+    setFieldValue('platforms', newPlatforms);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     setLoading(true);
     setMessage(null);
 
-    // Validation based on post type
-    if (postType === 'multi' && platforms.length === 0) {
-      setMessage({
-        type: 'error',
-        text: 'Please select at least one platform'
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (images.length === 0) {
-      setMessage({
-        type: 'error',
-        text: 'Please upload at least one image'
-      });
-      setLoading(false);
-      return;
-    }
-
-    if (schedule && new Date(schedule) < new Date()) {
-      setMessage({
-        type: 'error',
-        text: 'Schedule time must be in the future'
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
       const formData = new FormData();
-      formData.append('caption', caption);
-      images.forEach(image => formData.append('images', image));
+      formData.append('caption', values.caption);
+      values.images.forEach(image => formData.append('images', image));
       
       // Add platforms only for multi-post
-      if (postType === 'multi') {
-        formData.append('platforms', JSON.stringify(platforms));
+      if (values.postType === 'multi') {
+        formData.append('platforms', JSON.stringify(values.platforms));
       }
       
-      if (schedule) formData.append('schedule', schedule);
+      if (values.schedule) formData.append('schedule', values.schedule);
 
-      const endpoint = postType === 'instagram' 
+      const endpoint = values.postType === 'instagram' 
         ? '/nodesetup/social/post/instagram' 
         : '/nodesetup/social/post/multi';
 
@@ -89,22 +95,18 @@ const Post = () => {
 
       setMessage({
         type: 'success',
-        text: schedule 
-          ? `Post scheduled for ${new Date(schedule).toLocaleString()}`
-          : postType === 'instagram'
+        text: values.schedule 
+          ? `Post scheduled for ${new Date(values.schedule).toLocaleString()}`
+          : values.postType === 'instagram'
             ? 'Posted successfully to Instagram'
-            : `Posted successfully to ${platforms.join(', ')}`,
+            : `Posted successfully to ${values.platforms.join(', ')}`,
         data: response.data
       });
 
-      // Reset form on success
-      if (!schedule) {
-        setCaption('');
-        setImages([]);
+      // Reset form on success if not scheduled
+      if (!values.schedule) {
+        resetForm();
         setPreviewUrls([]);
-        if (postType === 'multi') {
-          setPlatforms([]);
-        }
       }
     } catch (error) {
       console.error('Posting error:', error);
@@ -115,34 +117,15 @@ const Post = () => {
       });
     } finally {
       setLoading(false);
+      setSubmitting(false);
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto bg-white dark:bg-gray-800 border border-[#004b8f]/30 rounded-2xl shadow-lg p-8 mt-8">
       <h2 className="text-2xl font-bold text-[#004b8f] dark:text-white mb-6 flex items-center gap-2">
-        <Send size={20} /> Create Post
+        Create Post
       </h2>
-
-      {/* Post Type Toggle */}
-      <div className="mb-6">
-        <div className="flex border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden w-fit">
-          <button
-            type="button"
-            onClick={() => setPostType('multi')}
-            className={`px-4 py-2 ${postType === 'multi' ? 'bg-[#004b8f] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
-          >
-            Multi-Platform
-          </button>
-          <button
-            type="button"
-            onClick={() => setPostType('instagram')}
-            className={`px-4 py-2 flex items-center gap-2 ${postType === 'instagram' ? 'bg-[#004b8f] text-white' : 'bg-gray-100 dark:bg-gray-700'}`}
-          >
-            <Instagram size={16} /> Instagram Only
-          </button>
-        </div>
-      </div>
 
       {message && (
         <div className={`mb-6 p-4 rounded-lg ${
@@ -159,128 +142,172 @@ const Post = () => {
         </div>
       )}
 
-      <form onSubmit={handleSubmit}>
-        {/* Caption */}
-        <div className="mb-6">
-          <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-            Post Caption
-          </label>
-          <textarea
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
-            rows={4}
-            placeholder="What's on your mind?"
-          />
-        </div>
-
-        {/* Platforms (only for multi-post) */}
-        {postType === 'multi' && (
-          <div className="mb-6">
-            <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-              Select Platforms
-            </label>
-            <div className="flex flex-wrap gap-3">
-              {VALID_PLATFORMS.map((platform) => (
-                <button
-                  key={platform}
-                  type="button"
-                  onClick={() => handlePlatformToggle(platform)}
-                  className={`px-4 py-2 rounded-lg border ${
-                    platforms.includes(platform)
-                      ? 'bg-[#004b8f] text-white border-[#004b8f]'
-                      : 'bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300'
-                  }`}
-                >
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                </button>
-              ))}
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {(formik) => (
+          <form onSubmit={formik.handleSubmit}>
+            {/* Post Type Selection */}
+            <div className="mb-6">
+              {formik.touched.postType && formik.errors.postType && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formik.errors.postType}
+                </p>
+              )}
             </div>
-          </div>
-        )}
 
-        {/* Image Upload */}
-        <div className="mb-6">
-          <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
-            Upload Images
-          </label>
-          <div className="flex items-center gap-4">
-            <label className="cursor-pointer flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg border border-gray-300 dark:border-gray-600">
-              <Upload size={16} />
-              Choose Files
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={handleImageChange}
-                className="hidden"
+            {/* Caption */}
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Post Caption<span className='text-red-500'>*</span>
+              </label>
+              <textarea
+                name="caption"
+                rows={4}
+                placeholder="What's on your mind?"
+                value={formik.values.caption}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
               />
-            </label>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
-              {images.length > 0 ? `${images.length} file(s) selected` : 'No files selected'}
-            </span>
-          </div>
-
-          {/* Image Previews */}
-          {previewUrls.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-4">
-              {previewUrls.map((url, index) => (
-                <div key={index} className="relative w-32 h-32">
-                  <img
-                    src={url}
-                    alt={`Preview ${index + 1}`}
-                    className="w-full h-full object-cover rounded-lg border border-gray-200 dark:border-gray-600"
-                  />
-                </div>
-              ))}
+              {formik.touched.caption && formik.errors.caption && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formik.errors.caption}
+                </p>
+              )}
             </div>
-          )}
-        </div>
 
-        {/* Schedule */}
-        <div className="mb-6">
-          <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
-            <Calendar size={16} /> Schedule Post (optional)
-          </label>
-          <input
-            type="datetime-local"
-            value={schedule}
-            onChange={(e) => setSchedule(e.target.value)}
-            min={new Date().toISOString().slice(0, 16)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
-          />
-          {schedule && (
-            <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-              Will post on: {new Date(schedule).toLocaleString()}
-            </p>
-          )}
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-lg hover:bg-[#003b73] disabled:opacity-50 disabled:cursor-not-allowed transition"
-          >
-            {loading ? (
-              'Posting...'
-            ) : schedule ? (
-              <>
-                <Calendar size={16} /> Schedule Post
-              </>
-            ) : postType === 'instagram' ? (
-              <>
-                <Instagram size={16} /> Post to Instagram
-              </>
-            ) : (
-              <>
-                <Send size={16} /> Post Now
-              </>
+            {/* Platforms (only for multi-post) */}
+            {formik.values.postType === 'multi' && (
+              <div className="mb-6">
+                <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Select Platforms<span className='text-red-500'>*</span>
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  {VALID_PLATFORMS.map((platform) => (
+                    <button
+                      key={platform}
+                      type="button"
+                      onClick={() => handlePlatformToggle(platform, formik.values, formik.setFieldValue)}
+                      className={`px-4 py-2 rounded-lg border ${
+                        formik.values.platforms.includes(platform)
+                          ? 'bg-[#004b8f] text-white border-[#004b8f] cursor-pointer'
+                          : 'bg-white dark:bg-gray-700 border-[#004b8f] dark:border-gray-600 text-[#004b8f] dark:text-gray-300 cursor-pointer'
+                      }`}
+                    >
+                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                    </button>
+                  ))}
+                </div>
+                {formik.touched.platforms && formik.errors.platforms && (
+                  <p className="text-sm text-red-500 mt-1">
+                    {formik.errors.platforms}
+                  </p>
+                )}
+              </div>
             )}
-          </button>
-        </div>
-      </form>
+
+            {/* Image Upload */}
+            <div className="mb-6">
+              <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                Upload Images <span className='text-red-500'>*</span>
+              </label>
+              <div className="flex items-center gap-4">
+                <label className="cursor-pointer inline-block px-4 py-2 bg-[#004b8f] text-white text-sm font-medium rounded-md hover:bg-[#003a73] transition">
+                  Choose Files
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={(e) => handleImageChange(e, formik.setFieldValue)}
+                    className="hidden"
+                  />
+                </label>
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  {formik.values.images.length > 0 ? `${formik.values.images.length} file(s) selected` : 'No files selected'}
+                </span>
+              </div>
+              {formik.touched.images && formik.errors.images && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formik.errors.images}
+                </p>
+              )}
+
+              {/* Image Previews */}
+              {previewUrls.length > 0 && (
+                <div className="mt-4 flex flex-wrap gap-4">
+                  {previewUrls.map((url, index) => (
+                    <div key={index} className="relative w-32 h-32">
+                      <img
+                        src={url}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-full object-cover rounded-lg border border-gray-200 dark:border-gray-600"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Schedule */}
+            <div className="mb-6">
+              <label className="mb-2 text-sm font-medium text-gray-700 dark:text-gray-300 flex items-center gap-2">
+                <Calendar size={16}/> Schedule Post
+              </label>
+              <input
+                type="datetime-local"
+                name="schedule"
+                value={formik.values.schedule}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                min={new Date().toISOString().slice(0, 16)}
+                className="px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
+              />
+              {formik.touched.schedule && formik.errors.schedule && (
+                <p className="text-sm text-red-500 mt-1">
+                  {formik.errors.schedule}
+                </p>
+              )}
+              {formik.values.schedule && (
+                <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+                  Will post on: {new Date(formik.values.schedule).toLocaleString("en-GB")}
+                </p>
+              )}
+            </div>
+
+                                   <div className='space-y-4'>
+             <p className='text-sm text-gray-500 dark:text-gray-400 '>
+               ➡️ All fields marked with
+               <span className='text-red-500'> *</span> are mandatory.
+             </p>
+             </div>
+
+            {/* Submit Button */}
+            <div className="flex justify-center">
+              <button
+                type="submit"
+                disabled={loading || formik.isSubmitting}
+                className="flex items-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-lg hover:bg-[#003b73] disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
+              >
+                {loading || formik.isSubmitting ? (
+                  'Posting...'
+                ) : formik.values.schedule ? (
+                  <>
+                    Schedule Post <Calendar size={18} /> 
+                  </>
+                ) : (
+                  <>
+                    Post Now <Send size={18} />
+                  </>
+                )}
+              </button>
+            </div>
+
+          </form>
+        )}
+      </Formik>
     </div>
   );
 };

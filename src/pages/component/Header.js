@@ -1,13 +1,40 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import { IoLogOutOutline } from "react-icons/io5";
-import { User } from "lucide-react";
-import { performLogout } from "@/utills/logout"; // ✅ import utility
+import { performLogout } from "@/utills/logout";
+import api from "@/utills/api";
+import { getUserRole } from "@/utills/auth";
 
 export default function Header() {
   const router = useRouter();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const [userInitial, setUserInitial] = useState("U");
+
+  // ✅ Fetch user initial from API
+  useEffect(() => {
+    const fetchUserInitial = async () => {
+      const { id, token, user_type } = getUserRole();
+      if (!id || !token) return;
+
+      const endpoint = user_type === "admin" ? "admins" : "staff";
+
+      try {
+        const res = await api.get(`/nodesetup/${endpoint}/${id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const name = res.data?.data?.username || "User";
+        const firstLetter = name.charAt(0).toUpperCase();
+        setUserInitial(firstLetter);
+      } catch (error) {
+        console.error("Failed to fetch user initial:", error);
+        setUserInitial("U");
+      }
+    };
+
+    fetchUserInitial();
+  }, []);
 
   const handleLogout = () => {
     performLogout(router);
@@ -40,10 +67,12 @@ export default function Header() {
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen((prev) => !prev)}
-            className="rounded-full bg-[#004b8f] hover:bg-[#003a6b] p-2 mr-2 transition-colors"
+            className="rounded-full bg-[#004b8f] hover:bg-[#003a6b] p-2 mr-2 w-10 h-10 flex items-center justify-center transition-colors"
             title="Profile"
           >
-            <User className="w-6 h-6 text-white" />
+            <span className="text-amber-100 font-semibold text-lg ">
+              {userInitial}
+            </span>
           </button>
 
           {dropdownOpen && (

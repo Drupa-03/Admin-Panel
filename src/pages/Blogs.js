@@ -115,7 +115,7 @@ export default function UploadedBlogs() {
   const extractFirstImage = (blog) => {
     if (!blog.first_image) return "/no-image.png";
     const cleanedPath = blog.first_image.replace(/\\/g, "/");
-    return `http://192.168.0.105:3007/${
+    return `http://192.168.0.116:3007/${
       cleanedPath.startsWith("/") ? cleanedPath.slice(1) : cleanedPath
     }`;
   };

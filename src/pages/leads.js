@@ -2375,9 +2375,7 @@ export default function Leads() {
                 Message
               </h2>
               <p className="mb-2 text-gray-800 dark:text-gray-300">
-                <strong className="text-gray-900 dark:text-gray-100">
-                  Message:
-                </strong>{" "}
+               
                 {selectedLeadmsg.notes || "N/A"}
               </p>
               <div className="flex justify-center mt-4">
@@ -2399,9 +2397,7 @@ export default function Leads() {
                 Response
               </h2>
               <p className="mb-4 text-gray-800 dark:text-gray-300">
-                <strong className="text-gray-900 dark:text-gray-100">
-                  Response:
-                </strong>{" "}
+                
                 {selectedLeadres.response || "N/A"}
               </p>
               <button

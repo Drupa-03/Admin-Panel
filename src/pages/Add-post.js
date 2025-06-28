@@ -1,12 +1,14 @@
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Filter, Info, Send, Save, LogIn } from "lucide-react";
+import { Filter, Info, Send, Save, LogIn, ArrowLeft } from "lucide-react";
 import api from "@/utills/api"; // Adjust this path if needed
 import SocialAuthForm from "./Authentication";
 import Post from "./Post";
 
 export default function SocialPostForm() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -89,30 +91,41 @@ export default function SocialPostForm() {
   });
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900 p-6 md:ml-64 pt-24'>
-      <h2 className='text-3xl font-bold text-[#004b8f] dark:text-white mb-6 pl-5 pt-2'>
-        Add post
-      </h2>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-6 md:ml-64 pt-20">
+      <div className="flex justify-between items-center mb-6 pr-8">
+        <h2 className="text-3xl font-bold text-[#004b8f] dark:text-white mb-6 pl-5 pt-2">
+          Add post
+        </h2>
+        <button
+          onClick={() => router.push("/socialmedia")}
+          className="flex items-center gap-2 px-5 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] cursor-pointer"
+        >
+          <ArrowLeft size={18} /> <span>Back</span>
+        </button>
+      </div>
+
       <form
         onSubmit={formik.handleSubmit}
-        className='max-w-6xl mx-auto bg-white dark:bg-gray-800 border border-[#004b8f]/30 rounded-2xl shadow-lg p-8'>
-        <h2 className='text-2xl font-bold text-[#004b8f] dark:text-white mb-6 pt-2'>
+        className="max-w-6xl mx-auto bg-white dark:bg-gray-800 border border-[#004b8f]/30 rounded-2xl shadow-lg p-8"
+      >
+        <h2 className="text-2xl font-bold text-[#004b8f] dark:text-white mb-6 pt-2">
           Credentials
         </h2>
-        
+
         {/* Platform Dropdown */}
-        <div className='mb-6'>
-          <label className='block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300'>
-            Select Platform<span className='text-red-500'>*</span>
+        <div className="mb-6">
+          <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            Select Platform<span className="text-red-500">*</span>
           </label>
-          <div className='flex items-center gap-2'>
-            <Filter size={18} className='text-gray-500' />
+          <div className="flex items-center gap-2">
+            <Filter size={18} className="text-gray-500" />
             <select
               name="platform"
               value={formik.values.platform}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]">
+              className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
+            >
               {platforms.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}
@@ -128,17 +141,17 @@ export default function SocialPostForm() {
         </div>
 
         {/* Client ID */}
-        <div className='mb-6'>
-          <label className='block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300'>
-            Client ID<span className='text-red-500'>*</span>
+        <div className="mb-6">
+          <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            Client ID<span className="text-red-500">*</span>
           </label>
           <input
-            type='text'
+            type="text"
             name="clientId"
             value={formik.values.clientId}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder='Enter Client ID'
+            placeholder="Enter Client ID"
             className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
           />
           {formik.touched.clientId && formik.errors.clientId && (
@@ -149,19 +162,18 @@ export default function SocialPostForm() {
         </div>
 
         {/* Client Secret */}
-        <div className='mb-6'>
-          <label className='block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300'>
-            Client Secret<span className='text-red-500'>*</span>
+        <div className="mb-6">
+          <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            Client Secret<span className="text-red-500">*</span>
           </label>
           <input
-            type='password'
+            type="password"
             name="clientSecret"
             value={formik.values.clientSecret}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder='Enter Client Secret'
+            placeholder="Enter Client Secret"
             className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
-              
           />
           {formik.touched.clientSecret && formik.errors.clientSecret && (
             <p className="text-sm text-red-500 mt-1">
@@ -171,17 +183,17 @@ export default function SocialPostForm() {
         </div>
 
         {/* Redirect URL */}
-        <div className='mb-6'>
-          <label className='block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300'>
-            Redirect URL<span className='text-red-500'>*</span>
+        <div className="mb-6">
+          <label className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+            Redirect URL<span className="text-red-500">*</span>
           </label>
           <input
-            type='url'
+            type="url"
             name="redirectUri"
             value={formik.values.redirectUri}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
-            placeholder='https://yourapp.com/callback'
+            placeholder="https://yourapp.com/callback"
             className="w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
           />
           {formik.touched.redirectUri && formik.errors.redirectUri && (
@@ -191,52 +203,50 @@ export default function SocialPostForm() {
           )}
         </div>
 
-                           <div className='space-y-4 pt-4'>
-             <p className='text-sm text-gray-500 dark:text-gray-400 '>
-               ➡️ All fields marked with
-               <span className='text-red-500'> *</span> are mandatory.
-             </p>
-             </div>
+        <div className="space-y-4 pt-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 ">
+            ➡️ All fields marked with
+            <span className="text-red-500"> *</span> are mandatory.
+          </p>
+        </div>
 
         {/* Submit Button */}
-        <div className='flex justify-center'>
+        <div className="flex justify-center">
           <button
-            type='submit'
+            type="submit"
             disabled={loading || !formik.isValid}
-            className='flex items-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-lg hover:bg-[#003b73] cursor-pointer transition'>
+            className="flex items-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-lg hover:bg-[#003b73] cursor-pointer transition"
+          >
             {loading ? "Submitting..." : "Save"}
             <Save size={16} />
           </button>
         </div>
 
         {/* Notes Section */}
-        <div className='mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300 rounded-xl p-4 flex items-start gap-3'>
-          <Info className='mt-1' size={20} />
-          <div className='text-sm leading-relaxed'>
-            <p className='mb-2'>
+        <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 text-blue-800 dark:text-blue-300 rounded-xl p-4 flex items-start gap-3">
+          <Info className="mt-1" size={20} />
+          <div className="text-sm leading-relaxed">
+            <p className="mb-2">
               Please select the desired platform from the dropdown above and
               enter the corresponding credentials provided by the platform.
             </p>
-            <p className='mb-2'>
+            <p className="mb-2">
               <strong>Important:</strong> Make sure your redirect URL is exactly
               as configured in your app settings on the respective platform.
             </p>
             <p>Common redirect URL formats:</p>
-            <ul className='list-disc list-inside mt-1 space-y-1'>
+            <ul className="list-disc list-inside mt-1 space-y-1">
               <li>https://yourapp.com/auth/callback</li>
               <li>https://localhost:3000/callback (for development)</li>
               <li>https://yourdomain.com/api/auth/callback</li>
             </ul>
           </div>
         </div>
-
       </form>
       <SocialAuthForm />
       <div>
         <Post />
-
       </div>
-      
     </div>
   );
 }

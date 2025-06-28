@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import api from "@/utills/api";
+import api, {API_URL} from "@/utills/api";
 import { toast } from "react-toastify";
 import ReactModalImage from "react-modal-image";
 import { SortableItem } from "./SortableItem";
@@ -651,11 +651,11 @@ export default function AddBlog() {
               type: content.type,
               content:
                 content.type === "image"
-                  ? `http://192.168.0.116:3007/${content.content}`
+                  ? `${API_URL}/${content.content}`
                   : content.content,
               previewUrl:
                 content.type === "image"
-                  ? `http://192.168.0.116:3007/${content.content}`
+                  ? `${API_URL}/${content.content}`
                   : "",
               order: content.order,
             }))
@@ -710,7 +710,7 @@ export default function AddBlog() {
             order: i + 1,
             content:
               block.type === "image"
-                ? block.content.replace("http://192.168.0.106:3007/", "")
+                ? block.content.replace(`${API_URL}/`, "")
                 : block.content,
           })),
         };
@@ -870,7 +870,7 @@ export default function AddBlog() {
         toast.warn("Image uploaded, but no URL returned.");
         return;
       }
-      const previewUrl = `http://192.168.0.116:3007/${imageData.tempUrl.toLowerCase()}`;
+      const previewUrl = `${API_URL}/${imageData.tempUrl.toLowerCase()}`;
       console.log("Setting previewUrl:", previewUrl);
       const img = new globalThis.Image();
 

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import api from "@/utills/api";
+import api, {API_URL} from "@/utills/api";
 import { ArrowLeft } from "lucide-react";
 const getAccessToken = () => localStorage.getItem("access_Token");
 export default function PreviewBlogs() {
@@ -28,7 +28,7 @@ export default function PreviewBlogs() {
   const extractImagePath = (imagePath) => {
     if (!imagePath) return "/no-image.png";
     const cleanedPath = imagePath.replace(/\\/g, "/");
-    return `http://192.168.0.105:3007/${
+    return `${API_URL}/${
       cleanedPath.startsWith("/") ? cleanedPath.slice(1) : cleanedPath
     }`;
   };

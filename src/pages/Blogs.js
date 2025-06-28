@@ -1,7 +1,7 @@
 //21/6/ 4:42 working code
 
 import React, { useState, useEffect } from "react";
-import api from "@/utills/api";
+import api, {API_URL} from "@/utills/api";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
@@ -112,13 +112,11 @@ export default function UploadedBlogs() {
     return titleMatch && categoryMatch;
   });
 
-  const extractFirstImage = (blog) => {
-    if (!blog.first_image) return "/no-image.png";
-    const cleanedPath = blog.first_image.replace(/\\/g, "/");
-    return `http://192.168.0.116:3007/${
-      cleanedPath.startsWith("/") ? cleanedPath.slice(1) : cleanedPath
-    }`;
-  };
+const extractFirstImage = (blog) => {
+  if (!blog.first_image) return "/no-image.png";
+  const cleanedPath = blog.first_image.replace(/\\/g, "/");
+  return `${API_URL}/${cleanedPath.startsWith("/") ? cleanedPath.slice(1) : cleanedPath}`;
+};
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900 pt-12 lg:pl-64 px-4 sm:px-6 md:px-8'>
@@ -182,7 +180,7 @@ export default function UploadedBlogs() {
             <table className='w-full text-sm'>
               <thead className='bg-[#004b8f] text-white'>
                 <tr>
-                  <th className='px-4 py-6 text-left'>
+                  <th className='px-4 py-5 text-left'>
                     <input
                       type='checkbox'
                       checked={
@@ -191,9 +189,9 @@ export default function UploadedBlogs() {
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th className='px-4 py-6 text-left'>Blog</th>
-                  <th className='px-4 py-6 text-left'>Date</th>
-                  <th className='px-4 py-6 text-left'>Actions</th>
+                  <th className='px-4 py-5 text-left'>Blog</th>
+                  <th className='px-4 py-5 text-left'>Date</th>
+                  <th className='px-4 py-5 text-left'>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -205,7 +203,7 @@ export default function UploadedBlogs() {
                         ? "bg-white text-black dark:bg-gray-900 dark:text-white"
                         : "bg-gray-100 text-black dark:bg-gray-800 dark:text-white"
                     }>
-                    <td className='px-4 py-6'>
+                    <td className='px-4 py-5'>
                       <input
                         type='checkbox'
                         checked={selectedBlogs.has(blog.id)}

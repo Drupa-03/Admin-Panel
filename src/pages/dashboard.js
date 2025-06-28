@@ -72,13 +72,13 @@ export default function Dashboard() {
       title: "Leads",
       icon: <Users size={50} className='text-[#004B8F]' />,
       count: leadCount,
-      route: "/Leads",
+      route: "/leads",
     },
     {
       title: "Client",
       icon: <User size={50} className='text-[#004B8F]' />,
       count: clientCount,
-      route: "/ExistingClients",
+      route: "/existingclient",
     },
   ];
   return (

@@ -1,7 +1,5 @@
-//21/6/ 4:42 working code
-
 import React, { useState, useEffect } from "react";
-import api, {API_URL} from "@/utills/api";
+import api, { API_URL } from "@/utills/api";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
@@ -12,12 +10,13 @@ import {
   Trash2,
   Newspaper,
 } from "lucide-react";
-import { getAccessToken, getUserRole } from "@/utills/auth";
+import { getAccessToken } from "@/utills/auth";
 import usePermission from "./hooks/usePermission";
+import ErrorPage from "./_error1";
 
 export default function UploadedBlogs() {
   const { is_view, is_add, is_update, is_delete } =
-    usePermission("manage_follow_ups");
+    usePermission("manage_blogs");
   const router = useRouter();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -26,18 +25,42 @@ export default function UploadedBlogs() {
   const [selectedBlogs, setSelectedBlogs] = useState(new Set());
   const [blogToDelete, setBlogToDelete] = useState(null);
 
-
   useEffect(() => {
+    // const fetchBlogs = async () => {
+    //   setLoading(true);
+    //   try {
+    //     const blogsRes = await api.get("/nodesetup/meta_blog", {
+    //       headers: {
+    //         Authorization: `Bearer ${getAccessToken()}`,
+    //       },
+    //     });
+    //     const blogsData = blogsRes?.data?.data || [];
+    //     setBlogs(blogsData);
+    //   } catch (error) {
+    //     console.error("Error fetching blogs:", error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
     const fetchBlogs = async () => {
       setLoading(true);
       try {
-        const blogsRes = await api.get("/nodesetup/blogs", {
+        const blogsRes = await api.get("/nodesetup/meta_blog", {
           headers: {
             Authorization: `Bearer ${getAccessToken()}`,
           },
         });
         const blogsData = blogsRes?.data?.data || [];
-        setBlogs(blogsData);
+
+        // map backend fields to expected frontend format
+        const mappedBlogs = blogsData.map((b) => ({
+          id: b.meta_blogs_id,
+          title: b.blog_title,
+          title_image: b.title_image, // ⬅️ no Meta_Blogs prefix here
+          created_at: b.created_at,
+        }));
+
+        setBlogs(mappedBlogs);
       } catch (error) {
         console.error("Error fetching blogs:", error);
       } finally {
@@ -52,15 +75,20 @@ export default function UploadedBlogs() {
   const handleEdit = (id) => router.push(`/Add-blog?id=${id}`);
 
   const handleDelete = async (id) => {
-      try {
-        await api.delete(`/nodesetup/blogs/${id}`);
-        setBlogs((prev) => prev.filter((blog) => blog.id !== id));
-        setSelectedBlogs((prev) => prev.filter((blogId) => blogId !== id));
-        toast.success("Blog deleted successfully!");
-      } catch (error) {
-        console.error("Error deleting blog:", error);
-      }
-    };
+    try {
+      await api.delete(`/nodesetup/meta_blog/${id}`);
+      setBlogs((prev) => prev.filter((blog) => blog.id !== id));
+      setSelectedBlogs((prev) => {
+        const updated = new Set(prev);
+        updated.delete(id);
+        return updated;
+      });
+      toast.success("Blog deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting blog:", error);
+      toast.error("Failed to delete blog");
+    }
+  };
 
   const handleBulkDelete = async () => {
     if (
@@ -68,7 +96,7 @@ export default function UploadedBlogs() {
     ) {
       try {
         const deletePromises = Array.from(selectedBlogs).map((id) =>
-          api.delete(`/nodesetup/blogs/${id}`, {
+          api.delete(`/nodesetup/meta_blog/${id}`, {
             headers: {
               Authorization: `Bearer ${getAccessToken()}`,
             },
@@ -112,11 +140,17 @@ export default function UploadedBlogs() {
     return titleMatch && categoryMatch;
   });
 
-const extractFirstImage = (blog) => {
-  if (!blog.first_image) return "/no-image.png";
-  const cleanedPath = blog.first_image.replace(/\\/g, "/");
-  return `${API_URL}/${cleanedPath.startsWith("/") ? cleanedPath.slice(1) : cleanedPath}`;
-};
+  const extractFirstImage = (blog) => {
+    console.log(blog.title_image);
+    if (!blog.title_image) return "/no-image.png";
+
+    const cleanedPath = blog.title_image.replace(/\\/g, "/");
+    return `${API_URL}/meta_blogs/${
+      cleanedPath.startsWith("/") ? cleanedPath.slice(1) : cleanedPath
+    }`;
+  };
+
+  if (is_view === 0) return <ErrorPage />;
 
   return (
     <div className='min-h-screen bg-gray-50 dark:bg-gray-900 pt-12 lg:pl-64 px-4 sm:px-6 md:px-8'>
@@ -156,7 +190,7 @@ const extractFirstImage = (blog) => {
                 placeholder='Search blogs...'
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className='w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-[#004b8f]'
+                className='w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white'
               />
             </div>
             {is_delete === 1 && (
@@ -176,11 +210,11 @@ const extractFirstImage = (blog) => {
 
         {/* Table */}
         <div className='bg-white dark:bg-gray-800 border border-[#004b8f]/30 rounded-2xl shadow overflow-hidden'>
-          <div className='overflow-x-auto sm:overflow-hidden'>
+          <div className='overflow-x-auto'>
             <table className='w-full text-sm'>
               <thead className='bg-[#004b8f] text-white'>
                 <tr>
-                  <th className='px-4 py-5 text-left'>
+                  <th className='px-4 py-4 text-left'>
                     <input
                       type='checkbox'
                       checked={
@@ -189,9 +223,9 @@ const extractFirstImage = (blog) => {
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th className='px-4 py-5 text-left'>Blog</th>
-                  <th className='px-4 py-5 text-left'>Date</th>
-                  <th className='px-4 py-5 text-left'>Actions</th>
+                  <th className='px-4 py-4 text-left'>Blog</th>
+                  <th className='px-4 py-4 text-left'>Date</th>
+                  <th className='px-4 py-4 text-left'>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -203,14 +237,14 @@ const extractFirstImage = (blog) => {
                         ? "bg-white text-black dark:bg-gray-900 dark:text-white"
                         : "bg-gray-100 text-black dark:bg-gray-800 dark:text-white"
                     }>
-                    <td className='px-4 py-5'>
+                    <td className='px-4 py-4'>
                       <input
                         type='checkbox'
                         checked={selectedBlogs.has(blog.id)}
                         onChange={() => handleSelectBlog(blog.id)}
                       />
                     </td>
-                    {/* <td className='px-4 py-4'>
+                    <td className='px-4 py-4'>
                       <div className='flex items-center gap-4'>
                         <img
                           src={extractFirstImage(blog)}
@@ -225,37 +259,9 @@ const extractFirstImage = (blog) => {
                           {blog.title}
                         </p>
                       </div>
-                    </td> */}
-                    <td className='px-4 py-5'>
-                      <div className='flex items-center gap-4'>
-                        <img
-                          src={extractFirstImage(blog)}
-                          alt='Blog'
-                          className='w-28 h-20 object-cover rounded-xl shadow-md border hover:scale-105 transition-transform duration-200'
-                        />
-
-                        {/* Blog title with preview tooltip */}
-                        <div className='relative group'>
-                          <p
-                            className='font-semibold text-gray-900 dark:text-white hover:underline cursor-pointer'
-                            onClick={() =>
-                              router.push(`/previewblogs/${blog.id}`)
-                            }>
-                            {blog.title}
-                          </p>
-
-                          {/* Tooltip Preview */}
-                          <div className='absolute left-0 mt-2 w-fit bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-700 rounded-lg shadow-lg p-1 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-300 z-10'>
-                            <h4 className='text-sm font-medium '>
-                              Preview Blog
-                            </h4>
-                          </div>
-                        </div>
-                      </div>
                     </td>
-
                     <td className='px-4 py-4 text-gray-700 dark:text-gray-300'>
-                      {new Date(blog.created_at).toLocaleDateString("en-GB")}
+                      {new Date(blog.created_at).toLocaleDateString()}
                     </td>
                     <td className='px-4 py-4'>
                       <div className='flex gap-2'>
@@ -266,7 +272,6 @@ const extractFirstImage = (blog) => {
                             <Edit3 size={16} />
                           </button>
                         )}
-
                         {is_delete === 1 && (
                           <button
                             onClick={() => setBlogToDelete(blog.id)}
@@ -311,7 +316,6 @@ const extractFirstImage = (blog) => {
           </div>
         )}
 
-        {/* Empty State */}
         {!loading && filteredBlogs.length === 0 && (
           <div className='text-center py-12'>
             <FileText size={48} className='mx-auto text-gray-400 mb-4' />

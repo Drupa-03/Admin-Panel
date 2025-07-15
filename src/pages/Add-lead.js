@@ -469,7 +469,7 @@ export default function AddLead() {
               </div>
               <div className='flex-1 min-w-[200px]'>
                 <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                  State <span className='text-red-500'>*</span>*
+                  State <span className='text-red-500'>*</span>
                 </label>
                 <Select
                   options={stateOptions}

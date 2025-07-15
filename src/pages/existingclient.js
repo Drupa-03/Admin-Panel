@@ -724,12 +724,13 @@ export default function ClientsPage() {
   }, [clients]);
 
   // ✅ Helper function to check if client is expiring soon
-  const isClientExpiringSoon = (client) => {
-    const today = new Date();
-    const endDate = new Date(client.plan_end_date);
-    const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
-    return daysLeft <= 2 && daysLeft > 0;
-  };
+const isClientExpiringSoon = (client) => {
+  const today = new Date();
+  const endDate = new Date(client.plan_end_date);
+  const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+  return daysLeft <= 60 && daysLeft > 0; // 60 days ≈ 2 months
+};
+
 
   // ✅ Helper function to get days left
   const getDaysLeft = (client) => {

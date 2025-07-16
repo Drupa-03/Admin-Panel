@@ -261,7 +261,7 @@ export default function UploadedBlogs() {
                       </div>
                     </td>
                     <td className='px-4 py-4 text-gray-700 dark:text-gray-300'>
-                      {new Date(blog.created_at).toLocaleDateString()}
+                      {new Date(blog.created_at).toLocaleDateString("en-GB")}
                     </td>
                     <td className='px-4 py-4'>
                       <div className='flex gap-2'>

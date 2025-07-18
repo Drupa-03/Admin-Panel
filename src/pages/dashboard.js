@@ -1,18 +1,22 @@
+//working Code 27/06
+
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { Newspaper, Users, User } from "lucide-react";
 import api from "@/utills/api";
+
 export default function Dashboard() {
   const [blogCount, setBlogCount] = useState(0);
   const [leadCount, setLeadCount] = useState(0);
   const [clientCount, setClientCount] = useState(0);
+
   useEffect(() => {
     const fetchBlogCount = async () => {
       try {
         const token = localStorage.getItem("access_token"); // Fix key
         console.log("Blog token:", token); // Debug
         if (!token) throw new Error("No token found");
-        const res = await api.get("/nodesetup/blogs/count", {
+        const res = await api.get("/nodesetup/meta_blog/count", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -24,6 +28,7 @@ export default function Dashboard() {
     };
     fetchBlogCount();
   }, []);
+
   useEffect(() => {
     const fetchLeadCount = async () => {
       try {
@@ -42,6 +47,7 @@ export default function Dashboard() {
     };
     fetchLeadCount();
   }, []);
+
   useEffect(() => {
     const fetchClientCount = async () => {
       try {
@@ -60,13 +66,15 @@ export default function Dashboard() {
     };
     fetchClientCount();
   }, []);
+
   const router = useRouter();
+
   const dashboardData = [
     {
       title: "Blogs",
       icon: <Newspaper size={50} className='text-[#004B8F]' />,
       count: blogCount,
-      route: "/Blogs",
+      route: "/blogs",
     },
     {
       title: "Leads",

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import api, { API_URL } from "@/utills/api";
+import api, { API_URL, updateAccessToken } from "@/utills/api";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import {
   FileText,
   Search,
   ArrowRight,
-  Edit3,
+  Edit3, 
   Trash2,
   Newspaper,
 } from "lucide-react";
@@ -26,28 +26,14 @@ export default function UploadedBlogs() {
   const [blogToDelete, setBlogToDelete] = useState(null);
 
   useEffect(() => {
-    // const fetchBlogs = async () => {
-    //   setLoading(true);
-    //   try {
-    //     const blogsRes = await api.get("/nodesetup/meta_blog", {
-    //       headers: {
-    //         Authorization: `Bearer ${getAccessToken()}`,
-    //       },
-    //     });
-    //     const blogsData = blogsRes?.data?.data || [];
-    //     setBlogs(blogsData);
-    //   } catch (error) {
-    //     console.error("Error fetching blogs:", error);
-    //   } finally {
-    //     setLoading(false);
-    //   }
-    // };
     const fetchBlogs = async () => {
       setLoading(true);
       try {
+        //  const accessToken = await updateAccessToken();
+        const token = localStorage.getItem("access_token");
         const blogsRes = await api.get("/nodesetup/meta_blog", {
           headers: {
-            Authorization: `Bearer ${getAccessToken()}`,
+            Authorization: `Bearer ${token}`,
           },
         });
         const blogsData = blogsRes?.data?.data || [];
@@ -56,6 +42,7 @@ export default function UploadedBlogs() {
         const mappedBlogs = blogsData.map((b) => ({
           id: b.meta_blogs_id,
           title: b.blog_title,
+          s_title: b.slug_title,
           title_image: b.title_image, // ⬅️ no Meta_Blogs prefix here
           created_at: b.created_at,
         }));
@@ -70,6 +57,40 @@ export default function UploadedBlogs() {
 
     fetchBlogs();
   }, []);
+
+  // useEffect(() => {
+  //   const fetchBlogs = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const accessToken = await updateAccessToken(); // gets token or refreshes if expired
+
+  //       const blogsRes = await api.get("/nodesetup/meta_blog/", {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`, // ✅ not accessToken()
+  //         },
+  //         withCredentials: true, // ✅ ensure refresh token is sent if needed
+  //       });
+
+  //       const blogsData = blogsRes?.data?.data || [];
+
+  //       const mappedBlogs = blogsData.map((b) => ({
+  //         id: b.meta_blogs_id,
+  //         title: b.blog_title,
+  //         s_title: b.slug_title,
+  //         title_image: b.title_image,
+  //         created_at: b.created_at,
+  //       }));
+
+  //       setBlogs(mappedBlogs);
+  //     } catch (error) {
+  //       console.error("Error fetching blogs:", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchBlogs();
+  // }, []);
 
   const handleAdd_blog = () => router.push("/Add-blog");
   const handleEdit = (id) => router.push(`/Add-blog?id=${id}`);
@@ -131,13 +152,23 @@ export default function UploadedBlogs() {
     );
   };
 
+const normalize = (str) =>
+  (str || "")
+    .toString()
+    .toLowerCase()
+    .replace(/[\s-_]/g, ""); // removes spaces, hyphens, underscores
+
+
+  const normalizedSearch = normalize(searchTerm);
+
   const filteredBlogs = blogs.filter((blog) => {
-    const titleMatch = blog.title
-      ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+    const titleMatch = normalize(blog.title).includes(normalizedSearch);
+    const slugMatch = normalize(blog.s_title).includes(normalizedSearch);
+
     const categoryMatch =
       filterCategory === "All" || blog.category === filterCategory;
-    return titleMatch && categoryMatch;
+
+    return (titleMatch || slugMatch) && categoryMatch;
   });
 
   const extractFirstImage = (blog) => {
@@ -223,7 +254,8 @@ export default function UploadedBlogs() {
                       onChange={handleSelectAll}
                     />
                   </th>
-                  <th className='px-4 py-4 text-left'>Blog</th>
+                  <th className='px-4 py-4 text-left'>Blog Title</th>
+                  <th className='px-4 py-4 text-left'>Slug Title</th>
                   <th className='px-4 py-4 text-left'>Date</th>
                   <th className='px-4 py-4 text-left'>Actions</th>
                 </tr>
@@ -254,14 +286,17 @@ export default function UploadedBlogs() {
                         <p
                           className='font-semibold text-gray-900 dark:text-white hover:underline cursor-pointer'
                           onClick={() =>
-                            router.push(`/previewblogs/${blog.id}`)
+                            router.push(`/blog/${blog.slug_title}`)
                           }>
                           {blog.title}
                         </p>
                       </div>
                     </td>
                     <td className='px-4 py-4 text-gray-700 dark:text-gray-300'>
-                      {new Date(blog.created_at).toLocaleDateString("en-GB")}
+                      {blog.s_title}
+                    </td>
+                    <td className='px-4 py-4 text-gray-700 dark:text-gray-300'>
+                      {new Date(blog.created_at).toLocaleDateString()}
                     </td>
                     <td className='px-4 py-4'>
                       <div className='flex gap-2'>

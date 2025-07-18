@@ -1,3 +1,5 @@
+//working code 27/06
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, User, ArrowRight, Trash2, Edit3 } from "lucide-react";
@@ -27,17 +29,17 @@ export default function StaffPage() {
     fetchStaff();
   }, []);
 
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`/nodesetup/staff/${id}`);
-      setStaffList((prev) => prev.filter((staff) => staff.staff_id !== id));
-      setSelectedStaff((prev)=> prev.filter((staff) => staff.staff_id !== id))
-      toast.success("Staff deleted successfully");
-    } catch (error) {
-      console.error("Delete failed:", error);
-      toast.error("Failed to delete staff");
-    }
-  };
+const handleDelete = async (id) => {
+  try {
+    await api.delete(`/nodesetup/staff/${id}`);
+    setStaffList((prev) => prev.filter((staff) => staff.staff_id !== id));
+    toast.success("Staff deleted successfully");
+  } catch (error) {
+    console.error("Delete failed:", error);
+    toast.error("Failed to delete staff");
+  }
+};
+
 
   const filteredStaff = staffList.filter(
     (staff) =>

@@ -1,18 +1,19 @@
-// pages/index.js
 import { useEffect } from "react";
 import { useRouter } from "next/router";
+import { isTokenValid } from "@/utills/auth";
 
 export default function Home() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (token) {
-      router.push("/dashboard");
+    if (typeof window === "undefined") return;
+
+    if (isTokenValid()) {
+      router.replace("/dashboard"); // prevents back button to index
     } else {
-      router.push("/login");
+      router.replace("/login");
     }
   }, []);
 
-  return null; // Or a loading spinner
+  return null; // Optional: add a loader/spinner here
 }

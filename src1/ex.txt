@@ -1,0 +1,786 @@
+testing update ==>>
+
+1) run this ==>
+ SELECT id, mobile, role_id FROM admins WHERE mobile = '9033750439';
+
+output ==>>
+2
+9033750439
+1
+
+2) run this ==>
+SELECT staff_id, mobile, role_id FROM staff WHERE mobile = '9898989898';
+
+output ==>
+1
+9898989898
+2
+
+3) run this ==>
+SELECT rights_menu_id, rights_name, status FROM rights_menu WHERE rights_name IN ('manage_blogs', 'manage_customers', 'manage_leads', 'manage_follow_ups', 'manage_permissions');
+
+output ==>
+1
+manage_blogs
+1
+
+2
+manage_customers
+1
+
+3
+manage_leads
+1
+
+4
+manage_follow_ups
+1
+
+9
+manage_permissions
+1
+
+4) run this ==>
+SELECT role_id, rights_menu_id, COUNT(*) as count
+FROM rights
+WHERE role_id = 2
+GROUP BY role_id, rights_menu_id
+HAVING count > 1;
+
+NO DATA SHOW
+
+5) POST to http://localhost:3007/nodesetup/auth/login (ADMIN LOGIN)
+
+Body(JSON) :
+{
+    "mobile": "9033750439",
+    "password": "password"
+}
+
+response ==>
+{
+    "status": 200,
+    "message": "Login successful",
+    "error_type": "success",
+    "data": {
+        "user_id": 2,
+        "user_type": "admin",
+        "role_id": 1,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcl90eXBlIjoiYWRtaW4iLCJyb2xlX2lkIjoxLCJpYXQiOjE3NTAyMzg2NDksImV4cCI6MTc1MDI0MjI0OX0.oGwwvuW5Mvcf3nMZllvYa7xnqYIXNnn3_ulX3gmMQhY",
+        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcl90eXBlIjoiYWRtaW4iLCJyb2xlX2lkIjoxLCJpYXQiOjE3NTAyMzg2NDksImV4cCI6MTc1MDg0MzQ0OX0.duWQyy8vpPnTZjvA93a22T8OSFtGBwzs6MJRvNUjzMY"
+    }
+}
+
+6) POST to http://localhost:3007/nodesetup/permissions
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcl90eXBlIjoiYWRtaW4iLCJyb2xlX2lkIjoxLCJpYXQiOjE3NTAyMzg2NDksImV4cCI6MTc1MDI0MjI0OX0.oGwwvuW5Mvcf3nMZllvYa7xnqYIXNnn3_ulX3gmMQhY
+
+Body(JSON) :
+{
+    "role_id": 2,
+    "permissions": {
+      "1": { "is_view": 1, "is_add": 1, "is_update": 0, "is_delete": 0 }, // manage_blogs
+      "2": { "is_view": 1, "is_add": 1, "is_update": 0, "is_delete": 0 }, // manage_customers
+      "3": { "is_view": 1, "is_add": 1, "is_update": 0, "is_delete": 0 }, // manage_leads
+      "4": { "is_view": 1, "is_add": 1, "is_update": 0, "is_delete": 0 }, // manage_follow_ups
+      "9": { "is_view": 1, "is_add": 1, "is_update": 0, "is_delete": 0 }  // manage_permissions
+    }
+  }
+
+response ==>>
+{
+    "status": 200,
+    "message": "Permissions updated successfully",
+    "error_type": "success"
+}
+
+7) verify by this ==>
+SELECT * FROM rights WHERE role_id = 2 ORDER BY rights_menu_id;
+  SELECT role_id, rights_menu_id, COUNT(*) as count FROM rights WHERE role_id = 2 GROUP BY role_id, rights_menu_id HAVING count > 1
+
+output ==>
+15
+2
+1
+1
+1
+0
+0
+2
+
+16
+2
+2
+1
+1
+0
+0
+2
+
+17
+2
+3
+1
+1
+0
+0
+2
+
+19
+2
+4
+1
+1
+0
+0
+2
+
+18
+2
+5
+1
+1
+0
+0
+2
+
+13
+2
+6
+0
+0
+0
+0
+NULL
+
+14
+2
+7
+0
+0
+0
+0
+NULL
+
+24
+2
+9
+1
+1
+0
+0
+2
+
+8) POST to http://localhost:3007/nodesetup/auth/login
+Body(JSON):
+  {
+    "mobile": "9898989898",
+    "password": "password"
+  }
+
+response ==>>
+{
+    "status": 200,
+    "message": "Login successful",
+    "error_type": "success",
+    "data": {
+        "user_id": 1,
+        "user_type": "staff",
+        "role_id": 2,
+        "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDI0MjcxOX0.UkFcMSEMaB1lthhcWb6dzAshOhw_KZ5zmSmQpf5CsLw",
+        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDg0MzkxOX0.ShU4QoMTtQWjjb2KMGI60IFASWLY0D9CTzbI9Zxt4_M"
+    }
+}
+
+9) POST to http://localhost:3007/nodesetup/blogs
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDI0MjcxOX0.UkFcMSEMaB1lthhcWb6dzAshOhw_KZ5zmSmQpf5CsLw
+
+Body(JSON):
+{
+      "title": "Staff Test Blog",
+      "status": 1,
+      "contents": [
+        {
+          "type": "text",
+          "content": "This is a test blog.",
+          "order": 1
+        }
+      ]
+    }
+
+response ==>>
+{
+    "status": 200,
+    "message": "Blog created",
+    "error_type": "success",
+    "data": {
+        "id": 72
+    }
+}
+
+10) GET to http://localhost:3007/nodesetup/blogs/72
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDI0MjcxOX0.UkFcMSEMaB1lthhcWb6dzAshOhw_KZ5zmSmQpf5CsLw
+
+
+response ==>
+{
+    "status": 200,
+    "message": "No error",
+    "error_type": "success",
+    "data": {
+        "id": 72,
+        "title": "Staff Test Blog",
+        "status": 1,
+        "created_at": "2025-06-18T09:34:09.000Z",
+        "created_by": "1",
+        "creator_username": "staff",
+        "contents": [
+            {
+                "content_id": 617,
+                "type": "text",
+                "content": "This is a test blog.",
+                "order": 1
+            }
+        ]
+    }
+}
+
+11) PUT to http://localhost:3007/nodesetup/blogs/72
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDI0MjcxOX0.UkFcMSEMaB1lthhcWb6dzAshOhw_KZ5zmSmQpf5CsLw
+
+Body (JSON):
+    {
+      "title": "Updated Blog",
+      "status": 1,
+      "contents": [
+        {
+          "type": "text",
+          "content": "Updated content.",
+          "order": 1
+        }
+      ]
+    }
+
+response ==>>
+{
+    "status": 403,
+    "message": "Access denied: You lack is_update permission on manage_blogs",
+    "error_type": "error"
+}
+
+12) DELETE to http://localhost:3007/nodesetup/blogs/72
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDI0MjcxOX0.UkFcMSEMaB1lthhcWb6dzAshOhw_KZ5zmSmQpf5CsLw
+
+response ==>
+{
+    "status": 403,
+    "message": "Access denied: You lack is_delete permission on manage_blogs",
+    "error_type": "error"
+}
+
+13) POST to http://localhost:3007/nodesetup/customers
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDI0MjcxOX0.UkFcMSEMaB1lthhcWb6dzAshOhw_KZ5zmSmQpf5CsLw
+
+Body(JSON):
+    {
+  "company_name": "John wick",
+  "address": "New-York",
+  "country":"America",
+  "state":"New-York",
+  "city":"New-York City",
+  "email": "johnwick@gmail..com",
+  "mobile_number_1": "9696969696",
+  "mobile_number_2": "9393939393",
+  "plan_purchased": "Web Development",
+  "plan_start_date": "2025-06-20",
+  "plan_end_date": "2026-12-01"
+}
+
+response ==>
+{
+    "status": 200,
+    "message": "Customer created",
+    "error_type": "success",
+    "data": {
+        "id": 33
+    }
+}
+
+14) GET to http://localhost:3007/nodesetup/customers/33
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyMzkxMTksImV4cCI6MTc1MDI0MjcxOX0.UkFcMSEMaB1lthhcWb6dzAshOhw_KZ5zmSmQpf5CsLw
+
+response ==>>
+{
+    "status": 200,
+    "message": "Customer retrieved",
+    "error_type": "success",
+    "data": {
+        "id": 33,
+        "company_name": "John wick",
+        "address": "New-York",
+        "country": "America",
+        "state": "New-York",
+        "city": "New-York City",
+        "email": "johnwick@gmail.com",
+        "mobile_number_1": "9696969696",
+        "mobile_number_2": "9393939393",
+        "plan_purchased": "Web Development",
+        "plan_start_date": "2025-06-19T18:30:00.000Z",
+        "plan_end_date": "2026-11-30T18:30:00.000Z",
+        "created_by": "1",
+        "created_at": "2025-06-18T09:46:32.000Z",
+        "updated_at": "2025-06-18T09:46:32.000Z",
+        "created_by_name": "staff"
+    }
+}
+
+15) PUT to http://localhost:3007/nodesetup/customers/33
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+(TOKEN CHANGED BECAUSE PREVIOUS TOKEN WAS EXPIRED)
+
+Body(JSON):
+
+{
+  "company_name": "John wick",
+  "address": "New-York",
+  "country":"America",
+  "state":"New-York",
+  "city":"New-York City",
+  "email": "johnwick@gmail..com",
+  "mobile_number_1": "9494949494",
+  "mobile_number_2": "9393939393",
+  "plan_purchased": "Web Development",
+  "plan_start_date": "2025-06-20",
+  "plan_end_date": "2026-12-01"
+}
+
+response ==>>
+
+{
+    "status": 403,
+    "message": "Access denied: You lack is_update permission on manage_customers",
+    "error_type": "error"
+}
+
+16) DELETE to http://localhost:3007/nodesetup/customers/33
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+response ==>
+
+{
+    "status": 403,
+    "message": "Access denied: You lack is_delete permission on manage_customers",
+    "error_type": "error"
+}
+
+17) POST to http://localhost:3007/nodesetup/leads
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+Body (JSON):
+{
+  "customer_name": "James Bond",
+  "company_name":"MI6",
+  "email": "bond007@gmail.com",
+  "mobile_number_1": "7007007007",
+  "mobile_number_2": "7979797979",
+  "country":"UK",
+  "state":"England",
+  "city":"London",
+  "interested_product": "Web services",
+  "notes": "Interested in Purchase"
+}
+
+response ==>
+
+{
+    "status": 200,
+    "message": "Lead created",
+    "error_type": "success",
+    "data": {
+        "id": 18
+    }
+}
+
+18) GET to http://localhost:3007/nodesetup/leads/18
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+response ==>>
+{
+    "status": 200,
+    "message": "No error",
+    "error_type": "success",
+    "data": {
+        "id": 18,
+        "customer_name": "James Bond",
+        "company_name": "MI6",
+        "email": "bond007@gmail.com",
+        "mobile_number_1": "7007007007",
+        "mobile_number_2": "7979797979",
+        "country": "UK",
+        "state": "England",
+        "city": "London",
+        "interested_product": "Web services",
+        "notes": "Interested in Purchase",
+        "lead_status": "new",
+        "response": null,
+        "created_by": 1,
+        "created_at": "2025-06-18T10:07:34.000Z",
+        "updated_at": "2025-06-18T10:07:34.000Z",
+        "creator_username": "staff",
+        "follow_ups": [],
+        "sent_count": 0,
+        "remaining_count": 12
+    }
+}
+
+19) PUT to http://localhost:3007/nodesetup/leads/18
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+Body (JSON):
+{
+    "status": 403,
+    "message": "Access denied: You lack is_update permission on manage_leads",
+    "error_type": "error"
+}
+
+20) DELETE to http://localhost:3007/nodesetup/leads/18
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+response ==>
+
+{
+    "status": 403,
+    "message": "Access denied: You lack is_delete permission on manage_leads",
+    "error_type": "error"
+}
+
+21) POST to http://localhost:3007/nodesetup/followups
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+BODY FORM-DATA :
+follow_up_number : 27
+message : this is add test for after role based
+files : (add one image)
+
+response ==>
+{
+    "status": 200,
+    "message": "No error",
+    "error_type": "success",
+    "data": "Follow-up inserted successfully",
+    "inserted_id": {
+        "id": 45
+    }
+}
+
+22) GET to http://localhost:3007/nodesetup/followups/45
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+response ==>
+{
+    "status": 200,
+    "message": "No error",
+    "error_type": "success",
+    "data": {
+        "id": 45,
+        "follow_up_number": 27,
+        "message": "This is a test follow-up message with PDF attachment",
+        "attachment": "uploads/Shree_Vallabh.jpg",
+        "created_by": "1",
+        "created_at": "2025-06-18T10:19:00.000Z",
+        "creator_username": "staff"
+    }
+}
+
+23) PUT to http://localhost:3007/nodesetup/followups/45
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+response ==>
+{
+    "status": 403,
+    "message": "Access denied: You lack is_update permission on manage_follow_ups",
+    "error_type": "error"
+}
+
+24) DELETE to http://localhost:3007/nodesetup/followups/45
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDAzOTksImV4cCI6MTc1MDI0Mzk5OX0.8lWPjjtKS9FZWgywa1x-wm6AtZ3TnBRqdMFSDmJOM_0
+
+response ==>
+{
+    "status": 403,
+    "message": "Access denied: You lack is_delete permission on manage_follow_ups",
+    "error_type": "error"
+}
+
+25) POST to http://localhost:3007/nodesetup/permissions
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDI0NTcsImV4cCI6MTc1MDI0NjA1N30.u4bJxWT2sjqzXvJbWEe7XYr9KqhWdTCavftMOM8kfLI
+
+(NEW TOKEN BECAUSE PREVIOUS TOKEN EXPIRED)
+
+Body(JSON):
+    {
+      "role_id": 3,
+      "permissions": {
+        "1": { "is_view": 1, "is_add": 0, "is_update": 0, "is_delete": 0 }
+      }
+    }
+
+response ==>
+
+{
+    "status": 403,
+    "message": "Only admins can update permissions",
+    "error_type": "error"
+}
+
+(as expected, because i have currently only two role, 1 = admin, 2 = staff, i hope in future if company wants to add one more role for example HR then this all setup works perfectly, doesn't create any problem)
+
+26) GET to http://localhost:3007/nodesetup/permissions/2
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDI0NTcsImV4cCI6MTc1MDI0NjA1N30.u4bJxWT2sjqzXvJbWEe7XYr9KqhWdTCavftMOM8kfLI
+
+response ==>
+
+{
+    "status": 200,
+    "message": "Permissions retrieved",
+    "error_type": "success",
+    "data": [
+        {
+            "right_id": 15,
+            "role_id": 2,
+            "rights_menu_id": 1,
+            "is_view": 1,
+            "is_add": 1,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": 2,
+            "rights_name": "manage_blogs"
+        },
+        {
+            "right_id": 16,
+            "role_id": 2,
+            "rights_menu_id": 2,
+            "is_view": 1,
+            "is_add": 1,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": 2,
+            "rights_name": "manage_customers"
+        },
+        {
+            "right_id": 17,
+            "role_id": 2,
+            "rights_menu_id": 3,
+            "is_view": 1,
+            "is_add": 1,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": 2,
+            "rights_name": "manage_leads"
+        },
+        {
+            "right_id": 19,
+            "role_id": 2,
+            "rights_menu_id": 4,
+            "is_view": 1,
+            "is_add": 1,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": 2,
+            "rights_name": "manage_follow_ups"
+        },
+        {
+            "right_id": 18,
+            "role_id": 2,
+            "rights_menu_id": 5,
+            "is_view": 1,
+            "is_add": 1,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": 2,
+            "rights_name": "manage_staff"
+        },
+        {
+            "right_id": 13,
+            "role_id": 2,
+            "rights_menu_id": 6,
+            "is_view": 0,
+            "is_add": 0,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": null,
+            "rights_name": "manage_roles"
+        },
+        {
+            "right_id": 14,
+            "role_id": 2,
+            "rights_menu_id": 7,
+            "is_view": 0,
+            "is_add": 0,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": null,
+            "rights_name": "manage_rights"
+        },
+        {
+            "right_id": 24,
+            "role_id": 2,
+            "rights_menu_id": 9,
+            "is_view": 1,
+            "is_add": 1,
+            "is_update": 0,
+            "is_delete": 0,
+            "created_by": 2,
+            "rights_name": "manage_permissions"
+        }
+    ]
+}
+
+27) POST to http://localhost:3007/nodesetup/permissions
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcl90eXBlIjoiYWRtaW4iLCJyb2xlX2lkIjoxLCJpYXQiOjE3NTAyNDI5MTksImV4cCI6MTc1MDI0NjUxOX0.pTy9HXebR24YdwlWSl_PSawiRMc0hEdfWXAUXiPLyz4
+(Admin token)
+
+Body (JSON):
+    {
+      "role_id": 2,
+      "permissions": {
+        "1": { "is_view": 1, "is_add": 1, "is_update": 0, "is_delete": 1 }
+      }
+    }
+
+response ==>
+
+{
+    "status": 200,
+    "message": "Permissions updated successfully",
+    "error_type": "success"
+}
+
+verify with this ==>
+SELECT * FROM rights WHERE role_id = 2 AND rights_menu_id = 1;
+
+output ==>
+
+15
+2
+1
+1
+1
+0
+1
+2
+
+28) DELETE to http://localhost:3007/nodesetup/blogs/72
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDI0NTcsImV4cCI6MTc1MDI0NjA1N30.u4bJxWT2sjqzXvJbWEe7XYr9KqhWdTCavftMOM8kfLI
+
+response ==>
+{
+    "status": 200,
+    "message": "Blog deleted",
+    "error_type": "success"
+}
+
+29) POST to http://localhost:3007/nodesetup/permissions
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwidXNlcl90eXBlIjoiYWRtaW4iLCJyb2xlX2lkIjoxLCJpYXQiOjE3NTAyNDI5MTksImV4cCI6MTc1MDI0NjUxOX0.pTy9HXebR24YdwlWSl_PSawiRMc0hEdfWXAUXiPLyz4
+(Admin token)
+
+Body(JSON):
+
+    {
+      "role_id": 2,
+      "permissions": {
+        "2": { "is_view": 1, "is_add": 1, "is_update": 1, "is_delete": 0 }
+      }
+    }
+
+response ==>
+
+{
+    "status": 200,
+    "message": "Permissions updated successfully",
+    "error_type": "success"
+}
+
+30) http://localhost:3007/nodesetup/customers/33
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDI0NTcsImV4cCI6MTc1MDI0NjA1N30.u4bJxWT2sjqzXvJbWEe7XYr9KqhWdTCavftMOM8kfLI
+
+Body (JSON):
+{
+  "company_name": "John wick",
+  "address": "New-York",
+  "country":"America",
+  "state":"New-York",
+  "city":"New-York City",
+  "email": "johnwick@gmail..com",
+  "mobile_number_1": "9494949494",
+  "mobile_number_2": "9393939393",
+  "plan_purchased": "Web Development",
+  "plan_start_date": "2025-06-20",
+  "plan_end_date": "2026-12-01"
+}
+
+response ==>
+
+{
+    "status": 200,
+    "message": "Customer updated",
+    "error_type": "success"
+}
+
+
+31) POST to http://localhost:3007/nodesetup/leads/2/follow-ups/44/send
+
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwidXNlcl90eXBlIjoic3RhZmYiLCJyb2xlX2lkIjoyLCJpYXQiOjE3NTAyNDI0NTcsImV4cCI6MTc1MDI0NjA1N30.u4bJxWT2sjqzXvJbWEe7XYr9KqhWdTCavftMOM8kfLI
+
+body raw(JSON) :
+{
+  "method": "email",
+  "send_date": "2025-06-18",
+  "send_time": "17:00:00",
+  "response": "Customer contacted"
+}
+
+response ==>
+{
+    "status": 200,
+    "message": "Follow-up sent",
+    "error_type": "success",
+    "data": {
+        "follow_up_number": "45"
+    }
+}
+
+terminal response ==>
+Permission check: menu: manage_follow_ups, role_id: 2, is_add: 1, right_id: 19
+Attempting to send follow-up: lead_id=2, follow_up_id=45
+Data found: RowDataPacket {
+  email: 'janambhalala007@gmail.com',
+  customer_name: 'James Bond',
+  interested_product: 'Med-E=LogBook',
+  message: 'This is a test follow-up message with PDF attachment',
+  attachment: 'uploads/Shree_Vallabh.jpg'
+}
+Email sent to: janambhalala007@gmail.com with 1 attachment(s)

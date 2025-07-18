@@ -1602,8 +1602,6 @@ export default function AddBlogPage() {
                   <p
                     className={`text-sm mt-1 italic text-gray-700 dark:text-white ${
                       formik.values.meta_description.length < 100 || formik.values.meta_description.length > 134
-                        ? "text-red-500"
-                        : ""
                     }`}
                   >
                     Total character count: {formik.values.meta_description.length} / 134 characters

@@ -64,10 +64,9 @@ export default function AddClientPage() {
       mobile_number_1: Yup.string()
         .matches(/^[0-9]{10}$/, "Mobile No1 must be 10 digits")
         .required("Mobile No1 is required"),
-      mobile_number_2: Yup.string().matches(
-        /^[0-9]{10}$/,
-        "Mobile No2 must be 10 digits"
-      ),
+      mobile_number_2: Yup.string()
+        .matches(/^[0-9]{10}$/, "Mobile No1 must be 10 digits")
+        .required("Mobile No2 is required"),
       plan_purchased: Yup.string().required("Plan is required"),
       plan_start_date: Yup.date().required("Start date is required"),
       plan_end_date: Yup.date()
@@ -162,77 +161,79 @@ export default function AddClientPage() {
 
   if (isLoading) {
     return (
-      <div className='min-h-screen flex justify-center items-center text-xl font-semibold text-gray-700 dark:text-white'>
+      <div className="min-h-screen flex justify-center items-center text-xl font-semibold text-gray-700 dark:text-white">
         Loading client data...
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen bg-gray-50 dark:bg-gray-900 lg:pl-64 pt-16 px-4 sm:px-6 md:px-8'>
-      <div className='max-w-6xl mx-auto py-10'>
-        <div className='flex justify-between items-center mb-8'>
-          <h1 className='text-3xl font-bold text-[#004b8f] dark:text-white'>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 lg:pl-64 pt-16 px-4 sm:px-6 md:px-8">
+      <div className="max-w-6xl mx-auto py-10">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-[#004b8f] dark:text-white">
             {clientId ? "Edit Client" : "Add Client"}
           </h1>
           <button
             onClick={() => router.push("/existingclient")}
-            className='flex items-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] transition-all duration-300 shadow-lg group cursor-pointer'>
+            className="flex items-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] transition-all duration-300 shadow-lg group cursor-pointer"
+          >
             <ArrowLeft
               size={18}
-              className='group-hover:-translate-x-1 transition-transform duration-300'
+              className="group-hover:-translate-x-1 transition-transform duration-300"
             />
-            <span className='font-semibold'>Back</span>
+            <span className="font-semibold">Back</span>
           </button>
         </div>
 
         <form
           onSubmit={formik.handleSubmit}
-          className='bg-white dark:bg-gray-800 border-2 border-[#004b8f]/20 rounded-2xl shadow-lg p-8 space-y-6'>
-          <div className='mb-4'>
-            <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-              Customer Name <span className='text-red-500'>*</span>
+          className="bg-white dark:bg-gray-800 border-2 border-[#004b8f]/20 rounded-2xl shadow-lg p-8 space-y-6"
+        >
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Customer Name <span className="text-red-500">*</span>
             </label>
             <input
-              type='text'
-              name='company_name'
+              type="text"
+              name="company_name"
               value={formik.values.company_name}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder='Enter full name'
-              className='w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none'
+              placeholder="Enter full name"
+              className="w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none"
             />
             {formik.touched.company_name && formik.errors.company_name && (
-              <div className='text-red-500 text-sm mt-1'>
+              <div className="text-red-500 text-sm mt-1">
                 {formik.errors.company_name}
               </div>
             )}
           </div>
 
-          <div className='mb-4'>
-            <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-              Address <span className='text-red-500'>*</span>
+          <div className="mb-4">
+            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+              Address <span className="text-red-500">*</span>
             </label>
             <input
-              type='text'
-              name='address'
+              type="text"
+              name="address"
               value={formik.values.address}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
-              placeholder='Enter address'
-              className='w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]'
+              placeholder="Enter address"
+              className="w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
             />
             {formik.touched.address && formik.errors.address && (
-              <div className='text-red-500 text-sm mt-1'>
+              <div className="text-red-500 text-sm mt-1">
                 {formik.errors.address}
               </div>
             )}
           </div>
 
-          <div className='flex flex-wrap gap-4'>
-            <div className='flex-1 min-w-[200px]'>
-              <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                Country <span className='text-red-500'>*</span>
+          <div className="flex flex-wrap gap-4">
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Country <span className="text-red-500">*</span>
               </label>
               <Select
                 options={countryOptions}
@@ -243,19 +244,19 @@ export default function AddClientPage() {
                   setSelectedCity(null);
                   formik.setFieldValue("country", option?.label || "");
                 }}
-                placeholder='Select Country'
-                className='text-black'
+                placeholder="Select Country"
+                className="text-black"
               />
               {formik.touched.country && formik.errors.country && (
-                <div className='text-red-500 text-sm mt-1'>
+                <div className="text-red-500 text-sm mt-1">
                   {formik.errors.country}
                 </div>
               )}
             </div>
 
-            <div className='flex-1 min-w-[200px]'>
-              <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                State <span className='text-red-500'>*</span>
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                State <span className="text-red-500">*</span>
               </label>
               <Select
                 options={stateOptions}
@@ -266,19 +267,19 @@ export default function AddClientPage() {
                   formik.setFieldValue("state", option?.label || "");
                 }}
                 isDisabled={!selectedCountry}
-                placeholder='Select State'
-                className='text-black'
+                placeholder="Select State"
+                className="text-black"
               />
               {formik.touched.state && formik.errors.state && (
-                <div className='text-red-500 text-sm mt-1'>
+                <div className="text-red-500 text-sm mt-1">
                   {formik.errors.state}
                 </div>
               )}
             </div>
 
-            <div className='flex-1 min-w-[200px]'>
-              <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                City <span className='text-red-500'>*</span>
+            <div className="flex-1 min-w-[200px]">
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                City <span className="text-red-500">*</span>
               </label>
               <Select
                 options={cityOptions}
@@ -288,112 +289,112 @@ export default function AddClientPage() {
                   formik.setFieldValue("city", option?.label || "");
                 }}
                 isDisabled={!selectedState}
-                placeholder='Select City'
-                className='text-black'
+                placeholder="Select City"
+                className="text-black"
               />
               {formik.touched.city && formik.errors.city && (
-                <div className='text-red-500 text-sm mt-1'>
+                <div className="text-red-500 text-sm mt-1">
                   {formik.errors.city}
                 </div>
               )}
             </div>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                Mobile Number 1 <span className='text-red-500'>*</span>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Mobile Number 1 <span className="text-red-500">*</span>
               </label>
               <input
-                type='tel'
-                name='mobile_number_1'
+                type="tel"
+                name="mobile_number_1"
                 value={formik.values.mobile_number_1}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter primary mobileno'
-                className='w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]'
+                placeholder="Enter primary mobileno"
+                className="w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
               />
               {formik.touched.mobile_number_1 &&
                 formik.errors.mobile_number_1 && (
-                  <div className='text-red-500 text-sm mt-1'>
+                  <div className="text-red-500 text-sm mt-1">
                     {formik.errors.mobile_number_1}
                   </div>
                 )}
             </div>
             <div>
-              <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                Mobile Number 2
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Mobile Number 2 <span className="text-red-500">*</span>
               </label>
               <input
-                type='tel'
-                name='mobile_number_2'
+                type="tel"
+                name="mobile_number_2"
                 value={formik.values.mobile_number_2}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter secondary mobileno'
-                className='w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]'
+                placeholder="Enter secondary mobileno"
+                className="w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
               />
               {formik.touched.mobile_number_2 &&
                 formik.errors.mobile_number_2 && (
-                  <div className='text-red-500 text-sm mt-1'>
+                  <div className="text-red-500 text-sm mt-1">
                     {formik.errors.mobile_number_2}
                   </div>
                 )}
             </div>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                Email <span className='text-red-500'>*</span>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Email <span className="text-red-500">*</span>
               </label>
               <input
-                type='email'
-                name='email'
+                type="email"
+                name="email"
                 value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter email address'
-                className='w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]'
+                placeholder="Enter email address"
+                className="w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
               />
               {formik.touched.email && formik.errors.email && (
-                <div className='text-red-500 text-sm mt-1'>
+                <div className="text-red-500 text-sm mt-1">
                   {formik.errors.email}
                 </div>
               )}
             </div>
 
             <div>
-              <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                Plan <span className='text-red-500'>*</span>
+              <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                Plan <span className="text-red-500">*</span>
               </label>
               <input
-                type='text'
-                name='plan_purchased'
+                type="text"
+                name="plan_purchased"
                 value={formik.values.plan_purchased}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                placeholder='Enter Plan'
-                className='w-full px-4 py-3 rounded-xl border border-black bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]'
+                placeholder="Enter Plan"
+                className="w-full px-4 py-3 rounded-xl border border-black bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
               />
               {formik.touched.plan_purchased &&
                 formik.errors.plan_purchased && (
-                  <div className='text-red-500 text-sm mt-1'>
+                  <div className="text-red-500 text-sm mt-1">
                     {formik.errors.plan_purchased}
                   </div>
                 )}
             </div>
           </div>
 
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {["plan_start_date", "plan_end_date"].map((field) => (
               <div key={field}>
-                <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
+                <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
                   {field === "plan_start_date" ? "Start Date" : "End Date"}{" "}
-                  <span className='text-red-500'>*</span>
+                  <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type='date'
+                  type="date"
                   name={field}
                   value={formik.values[field]}
                   onChange={formik.handleChange}
@@ -403,10 +404,10 @@ export default function AddClientPage() {
                       : undefined
                   }
                   onBlur={formik.handleBlur}
-                  className='w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]'
+                  className="w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
                 />
                 {formik.touched[field] && formik.errors[field] && (
-                  <div className='text-red-500 text-sm mt-1'>
+                  <div className="text-red-500 text-sm mt-1">
                     {formik.errors[field]}
                   </div>
                 )}
@@ -414,19 +415,20 @@ export default function AddClientPage() {
             ))}
           </div>
 
-          <div className='space-y-4'>
-            <p className='text-sm text-gray-500 dark:text-gray-400 '>
+          <div className="space-y-4">
+            <p className="text-sm text-gray-500 dark:text-gray-400 ">
               ➡️ All fields marked with
-              <span className='text-red-500'> *</span> are mandatory.
+              <span className="text-red-500"> *</span> are mandatory.
             </p>
-            <div className='text-right pt-6'>
+            <div className="text-right pt-6">
               <button
-                type='submit'
+                type="submit"
                 disabled={isSubmitting}
                 className={`flex items-center mx-auto gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] transition-all duration-300 shadow-lg hover:shadow-xl group cursor-pointer ${
                   isSubmitting ? "opacity-70 cursor-not-allowed" : ""
-                }`}>
-                <span className='font-semibold'>
+                }`}
+              >
+                <span className="font-semibold">
                   {isSubmitting
                     ? "Processing..."
                     : clientId

@@ -1,66 +1,55 @@
 
-import axios from "axios";
-import { API_URL } from "./api";
 
 export const logout = async () => {
   try {
-    const refresh_token = localStorage.getItem("refresh_token");
-    if (refresh_token) {
-      await axios.post(`${API_URL}/nodesetup/auth/logout`, { refresh_token });
+    const { default: axios } = await import("axios");
+    const API_URL =
+      typeof window !== "undefined" && window.location.hostname === "localhost"
+        ? "http://192.168.0.108:3007"
+        : "https://node.esirt.co.in";
+
+    const token = localStorage.getItem("access_token");
+
+    if (token) {
+      await axios.post(`${API_URL}/nodesetup/auth/logout`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
     }
   } catch (error) {
     console.error("Logout API failed:", error);
   }
+
   localStorage.removeItem("access_token");
-  localStorage.removeItem("refresh_token");
   localStorage.removeItem("Auth");
+
+
+
   if (typeof window !== "undefined") {
     window.location.href = "/login";
   }
 };
 
-export const setAuthTokens = (accessToken, refreshToken, userData = {}) => {
+export const setAuthTokens = (accessToken) => {
   localStorage.setItem("access_token", accessToken);
-  localStorage.setItem("refresh_token", refreshToken);
-  localStorage.setItem(
-    "Auth",
-    JSON.stringify({
-      token: accessToken,
-      id: userData.id || null,
-      user_type: userData.user_type || "staff",
-      role_id: userData.role_id || null,
-    })
-  );
+  localStorage.setItem("Auth", `Bearer ${accessToken}`);
 };
 
 export const headersApplication = () => {
-  try {
-    const token = localStorage.getItem("access_token");
-    return {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "",
-    };
-  } catch (error) {
-    console.error("Error setting headers:", error);
-    return {
-      "Content-Type": "application/json",
-    };
-  }
+  const token = localStorage.getItem("access_token");
+  return {
+    "Content-Type": "application/json",
+    Authorization: token ? `Bearer ${token}` : "",
+  };
 };
 
 export const headersMultipart = () => {
-  try {
-    const token = localStorage.getItem("access_token");
-    return {
-      "Content-Type": "multipart/form-data",
-      Authorization: token ? `Bearer ${token}` : "",
-    };
-  } catch (error) {
-    console.error("Error setting headers:", error);
-    return {
-      "Content-Type": "multipart/form-data",
-    };
-  }
+  const token = localStorage.getItem("access_token");
+  return {
+    "Content-Type": "multipart/form-data",
+    Authorization: token ? `Bearer ${token}` : "",
+  };
 };
 
 export const getUserRole = () => {

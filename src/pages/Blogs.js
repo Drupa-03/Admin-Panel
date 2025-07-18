@@ -284,10 +284,8 @@ const normalize = (str) =>
                           className='w-28 h-20 object-cover rounded-xl shadow-md border hover:scale-105 transition-transform duration-200'
                         />
                         <p
-                          className='font-semibold text-gray-900 dark:text-white hover:underline cursor-pointer'
-                          onClick={() =>
-                            router.push(`/blog/${blog.slug_title}`)
-                          }>
+                          className='font-semibold text-gray-900 dark:text-white'
+                          >
                           {blog.title}
                         </p>
                       </div>
@@ -296,7 +294,7 @@ const normalize = (str) =>
                       {blog.s_title}
                     </td>
                     <td className='px-4 py-4 text-gray-700 dark:text-gray-300'>
-                      {new Date(blog.created_at).toLocaleDateString()}
+                      {new Date(blog.created_at).toLocaleDateString("en-GB")}
                     </td>
                     <td className='px-4 py-4'>
                       <div className='flex gap-2'>

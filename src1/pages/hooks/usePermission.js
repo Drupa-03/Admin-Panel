@@ -8,11 +8,23 @@ export default function usePermission(rightsName) {
     is_update: 0,
     is_delete: 0,
   });
-  
+
   useEffect(() => {
     const fetchPermissions = async () => {
       const authData = JSON.parse(localStorage.getItem("Auth"));
       const roleId = authData?.role_id;
+      const userType = authData?.user_type;
+
+      // ✅ If admin, skip API and grant full permissions
+      if (userType === "admin") {
+        setPermission({
+          is_view: 1,
+          is_add: 1,
+          is_update: 1,
+          is_delete: 1,
+        });
+        return;
+      }
 
       if (!roleId) return;
 
@@ -32,6 +44,7 @@ export default function usePermission(rightsName) {
             is_delete: matched.is_delete,
           });
         } else {
+          // No match found; default to 0s
           setPermission({ is_view: 0, is_add: 0, is_update: 0, is_delete: 0 });
         }
       } catch (err) {

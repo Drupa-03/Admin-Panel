@@ -2,11 +2,18 @@
 import api from "@/utills/api";
 
 export const performLogout = async (router) => {
-  const refresh_token = localStorage.getItem("refresh_token");
-
   try {
-    if (refresh_token) {
-      await api.post("/nodesetup/auth/logout", { refresh_token });
+    const access_token = localStorage.getItem("access_token");
+    if (access_token) {
+      await api.post(
+        "/nodesetup/auth/logout",
+        null,
+        {
+          headers: {
+            Authorization: `Bearer ${access_token}`,
+          },
+        }
+      );
     }
   } catch (error) {
     console.error("Logout API failed:", error);

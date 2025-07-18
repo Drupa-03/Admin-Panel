@@ -1,4 +1,5 @@
-"use client";
+//Working code 27/06
+
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, Send } from "lucide-react";

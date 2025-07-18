@@ -1,3 +1,5 @@
+//Working code 27/06
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Dialog } from "@headlessui/react";
@@ -17,6 +19,7 @@ import api from "@/utills/api";
 import { toast } from "react-toastify";
 import usePermission from "./hooks/usePermission";
 import ReactModalImage from "react-modal-image";
+import ErrorPage from "./_error1";
 
 export default function FollowUpMessages() {
   const { is_view, is_add, is_update, is_delete } =
@@ -108,6 +111,10 @@ const filteredFollowUps = followUps.filter(
   (followUp) =>
     followUp.message?.toLowerCase().includes(searchQuery.toLowerCase())
 );
+
+if (is_view === 0) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 lg:pl-72 pt-13 px-4 sm:px-6 md:px-8">

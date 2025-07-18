@@ -1,106 +1,108 @@
+// // utils/api.js
+// import axios from "axios";
+// import { refreshAccessToken, logout } from "./auth";
+
+// const isLocalhost = typeof window !== "undefined" && window.location.hostname === "localhost";
+// export const API_URL = isLocalhost ? "http://localhost:3007" : "https://node.esirt.co.in";
+
+// const api = axios.create({
+//   baseURL: API_URL,
+//   timeout: 220000, 
+// });
+
+// // ✅ Request interceptor to attach token
+// api.interceptors.request.use(
+//   (config) => {
+//     const token = localStorage.getItem("access_token");
+//     if (token) {
+//       config.headers.Authorization = `Bearer ${token}`;
+//     }
+//     return config;
+//   },
+//   (error) => {
+//     return Promise.reject(error);
+//   }
+// );
+
+// // ✅ Response interceptor for token refresh
+// api.interceptors.response.use(
+//   (response) => response,
+//   async (error) => {
+//     const originalRequest = error.config;
+
+//     // Check if it's a 401 error and we haven't already tried to refresh
+//     if (
+//       error.response?.status === 401 &&
+//       !originalRequest._retry &&
+//       !originalRequest.url.includes("/auth/refresh") &&
+//       !originalRequest.url.includes("/login")
+//     ) {
+//       originalRequest._retry = true;
+
+//       try {
+//         const newAccessToken = await refreshAccessToken();
+
+//         if (newAccessToken) {
+//           // Update the authorization header for the original request
+//           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+//           // Retry the original request
+//           return api(originalRequest);
+//         } else {
+//           // Refresh failed, logout user
+//           logout();
+//           return Promise.reject(error);
+//         }
+//       } catch (refreshError) {
+//         // Refresh failed, logout user
+//         logout();
+//         return Promise.reject(error);
+//       }
+//     }
+
+//     return Promise.reject(error);
+//   }
+// );
+
+// export default api;
+
 
 import axios from "axios";
+import { logout } from "./auth";
 
-export const API_URL = "http://192.168.0.108:3007"; // Adjust for live environment
+const isLocalhost = typeof window !== "undefined" && window.location.hostname === "localhost";
+export const API_URL = isLocalhost ? "http://192.168.0.108:3007" : "https://node.esirt.co.in";
 
 const api = axios.create({
   baseURL: API_URL,
-  timeout: 60000,
+  timeout: 220000,
 });
 
-export const isAccessTokenExpired = (accessToken) => {
-  if (!accessToken) {
-    console.warn("No access token provided to isAccessTokenExpired");
-    return true;
-  }
-  try {
-    const decodedToken = JSON.parse(atob(accessToken.split('.')[1]));
-    if (!decodedToken?.exp) {
-      console.warn("Token has no expiry claim:", decodedToken);
-      return true;
-    }
-    const isExpired = Date.now() >= decodedToken.exp * 1000;
-    console.log("Token expiry check:", {
-      isExpired,
-      exp: decodedToken.exp,
-      now: Date.now() / 1000,
-    });
-    return isExpired;
-  } catch (error) {
-    console.error("Error decoding token:", error);
-    return true;
-  }
-};
-
-export const refreshToken = async () => {
-  try {
-    const refresh_token = localStorage.getItem("refresh_token");
-    if (!refresh_token) {
-      console.error("No refresh token available");
-      throw new Error("No refresh token available");
-    }
-
-    console.log("Attempting token refresh with:", refresh_token.slice(0, 10) + "...");
-    const response = await axios.post(`${API_URL}/nodesetup/auth/refresh`, { refresh_token });
-    console.log("Refresh response:", response.data);
-
-    const { token, refresh_token: newRefreshToken } = response.data.data;
-
-    if (!token || !newRefreshToken) {
-      throw new Error("Invalid refresh response");
-    }
-
-    localStorage.setItem("access_token", token);
-    localStorage.setItem("refresh_token", newRefreshToken);
-    console.log("Token refreshed successfully:", token.slice(0, 10) + "...");
-    return token;
-  } catch (error) {
-    console.error("Error refreshing token:", error.response?.data || error.message);
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    localStorage.removeItem("Auth");
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
-    }
-    throw error;
-  }
-};
-
 api.interceptors.request.use(
-  async (config) => {
-    let accessToken = localStorage.getItem("access_token");
-    if (accessToken && isAccessTokenExpired(accessToken)) {
-      console.log("Access token expired, attempting refresh");
-      accessToken = await refreshToken();
-    }
-    if (accessToken) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
+  (config) => {
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    console.error("Request interceptor error:", error);
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
+// Remove refresh token logic
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      console.log("401 error detected, attempting token refresh");
-      try {
-        const newAccessToken = await refreshToken();
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        console.error("Token refresh failed in response interceptor:", refreshError);
-        return Promise.reject(refreshError);
-      }
+
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url.includes("/login")
+    ) {
+      logout(); // Simply log out if unauthorized
+      return Promise.reject(error);
     }
-    console.error("Response error:", error.response?.data || error.message);
+
     return Promise.reject(error);
   }
 );

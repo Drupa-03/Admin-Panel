@@ -1,9 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
-import { IoLogOutOutline } from "react-icons/io5";
-import { performLogout } from "@/utills/logout";
-import { IoChevronDown } from "react-icons/io5";
-
+import { IoLogOutOutline, IoChevronDown } from "react-icons/io5";
 import api from "@/utills/api";
 import { getUserRole } from "@/utills/auth";
 
@@ -13,7 +10,7 @@ export default function Header() {
   const dropdownRef = useRef(null);
   const [userInitial, setUserInitial] = useState("U");
 
-  // ✅ Fetch user initial from API
+  // ✅ Fetch user initial
   useEffect(() => {
     const fetchUserInitial = async () => {
       const { id, token, user_type } = getUserRole();
@@ -27,8 +24,7 @@ export default function Header() {
         });
 
         const name = res.data?.data?.username || "User";
-        const firstLetter = name.charAt(0).toUpperCase();
-        setUserInitial(firstLetter);
+        setUserInitial(name.charAt(0).toUpperCase());
       } catch (error) {
         console.error("Failed to fetch user initial:", error);
         setUserInitial("U");
@@ -38,8 +34,27 @@ export default function Header() {
     fetchUserInitial();
   }, []);
 
-  const handleLogout = () => {
-    performLogout(router);
+  // ✅ Logout logic (inline)
+  const handleLogout = async () => {
+    try {
+      const access_token = localStorage.getItem("access_token");
+      if (access_token) {
+        await api.post(
+          "/nodesetup/auth/logout",
+          null,
+          {
+            headers: {
+              Authorization: `Bearer ${access_token}`,
+            },
+          }
+        );
+      }
+    } catch (error) {
+      console.error("Logout API failed:", error);
+    }
+
+    localStorage.clear();
+    router.push("/login");
   };
 
   // ✅ Close dropdown on outside click or scroll

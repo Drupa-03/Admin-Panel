@@ -63,6 +63,9 @@ export default function AddLead() {
       mobile_number_1: Yup.string()
         .required("Mobile number 1 is required")
         .matches(/^\d{10,}$/, "Enter a valid phone number"),
+        mobile_number_2: Yup.string()
+        .required("Mobile number 2 is required")
+        .matches(/^\d{10,}$/, "Enter a valid phone number"),
       interested_product: Yup.string().required("Interest is required"),
       company_name: Yup.string().required("Company name is required"),
       email: Yup.string().email("Invalid email").required("Email is required"),
@@ -356,15 +359,21 @@ export default function AddLead() {
               </div>
               <div>
                 <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                  Mobile Number 2
+                  Mobile Number 2 <span className='text-red-500'>*</span>
                 </label>
                 <input
                   type='tel'
                   name='mobile_number_2'
                   {...formik.getFieldProps("mobile_number_2")}
-                  placeholder='Phone number (optional)'
+                  placeholder='Phone number'
                   className='w-full px-4 py-3 rounded-xl border bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white'
                 />
+                {formik.touched.mobile_number_2 &&
+                  formik.errors.mobile_number_2 && (
+                    <div className='text-red-500 text-sm mt-1'>
+                      {formik.errors.mobile_number_2}
+                    </div>
+                  )}
               </div>
             </div>
 
@@ -425,7 +434,7 @@ export default function AddLead() {
               </div>
               <div>
                 <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                  Lead Status *<span className='text-red-500'>*</span>
+                  Lead Status <span className='text-red-500'>*</span>
                 </label>
                 <select
                   name='lead_status'
@@ -471,7 +480,7 @@ export default function AddLead() {
               </div>
               <div className='flex-1 min-w-[200px]'>
                 <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                  State <span className='text-red-500'>*</span>*
+                  State <span className='text-red-500'>*</span>
                 </label>
                 <Select
                   options={stateOptions}

@@ -1,3 +1,5 @@
+//Working code 27/06
+
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Country, State, City } from "country-state-city";
@@ -89,13 +91,13 @@ export default function AddLead() {
             headers: { "Content-Type": "application/json" },
             timeout: 10000,
           });
-          toast.success("Lead updated successfully!💚");
+          toast.success("Lead updated successfully! 💚");
         } else {
           await api.post("/nodesetup/leads", finalData, {
             headers: { "Content-Type": "application/json" },
             timeout: 10000,
           });
-          toast.success("Lead created successfully!😊");
+          toast.success("Lead created successfully! 😊");
         }
         router.push("/leads");
       } catch (err) {
@@ -213,7 +215,7 @@ export default function AddLead() {
                   </>
                 )}
               </button>
-            )}
+            )} 
             <button
               onClick={() => router.push("/leads")}
               className='group flex items-center gap-2 px-6 py-3 bg-[#004b8f] text-white rounded-xl hover:bg-[#003d73] cursor-pointer duration-300'>
@@ -423,7 +425,7 @@ export default function AddLead() {
               </div>
               <div>
                 <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                  Lead Status<span className='text-red-500'>*</span>
+                  Lead Status *<span className='text-red-500'>*</span>
                 </label>
                 <select
                   name='lead_status'
@@ -469,7 +471,7 @@ export default function AddLead() {
               </div>
               <div className='flex-1 min-w-[200px]'>
                 <label className='block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2'>
-                  State <span className='text-red-500'>*</span>
+                  State <span className='text-red-500'>*</span>*
                 </label>
                 <Select
                   options={stateOptions}

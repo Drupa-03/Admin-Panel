@@ -1,3 +1,5 @@
+//Working code 27/06
+
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -14,6 +16,7 @@ import {
 } from "lucide-react";
 import api from "@/utills/api";
 import { toast } from "react-toastify";
+import ErrorPage from "./_error1";
 
 export default function UploadedSocialPosts() {
   const router = useRouter();
@@ -124,9 +127,13 @@ export default function UploadedSocialPosts() {
     return matchesSearch && matchesPlatform;
   });
 
+  if (is_view === 0) {
+      return <ErrorPage />;
+    }
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 lg:pl-72 pt-12 px-4 sm:px-6 md:px-8">
-      <div className="max-w-7xl mx-auto py-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 lg:pl-64 pt-12 px-4 sm:px-6 md:px-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div className="flex">

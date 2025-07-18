@@ -1,3 +1,5 @@
+//Working code 27/06
+
 import React, { useState } from 'react';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
@@ -263,7 +265,7 @@ const Post = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 min={new Date().toISOString().slice(0, 16)}
-                className="px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f]"
+                className="px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#004b8f] cursor-pointer"
               />
               {formik.touched.schedule && formik.errors.schedule && (
                 <p className="text-sm text-red-500 mt-1">
